@@ -162,6 +162,8 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
 }
 .header-contact-item strong { font-size: 13px; font-weight: 500; color: var(--placeholder); display: block; }
+.header-contact-lines { display: flex; flex-direction: column; gap: 1px; line-height: 1.3; }
+.header-contact-lines .hcl-label { font-size: 11px; color: var(--placeholder); font-weight: 500; }
 .header-contact-item a, .header-contact-item span { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; }
 .header-contact-item a:hover { color: var(--gold); }
 
@@ -925,9 +927,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 520px) {
-  .header-top-inner { flex-direction: column; justify-content: center; gap: 8px; }
-  .header-contacts { gap: 10px; }
-  .header-contact-item strong { display: none; }
+  .header-top-inner { gap: 12px; }
+  .header-contacts { gap: 12px; }
+  .header-contact-item { gap: 8px; }
+  .header-contact-item i { width: 34px; height: 34px; font-size: 17px; }
+  .header-contact-lines a { font-size: 13px; }
+  .header-contact-lines .hcl-label { display: none; }
   .search-tab { font-size: 13px; padding: 12px 8px; }
   .hero h1 { font-size: 26px; }
   .hero p { font-size: 14px; }

@@ -129,7 +129,7 @@
     grid.style.display = 'grid';
     emptyBox.style.display = 'none';
 
-    grid.className = 'listings-grid ' + (state.view === 'list' ? 'view-list' : '');
+    grid.className = 'listings-grid grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3' + (state.view === 'list' ? ' view-list' : '');
     grid.innerHTML = pagina.map(i => cardHTML(i, state.favoritos.includes(i.id))).join('');
 
     renderPaginacao(totalPaginas);
