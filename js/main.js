@@ -148,14 +148,34 @@
     }
   }
 
+  function rangePaginas(totalPaginas, atual) {
+    const MAX = 5;
+    if (totalPaginas <= MAX) {
+      const arr = [];
+      for (let i = 1; i <= totalPaginas; i++) arr.push(i);
+      return arr;
+    }
+    const inicio = Math.max(1, Math.min(atual - Math.floor(MAX / 2), totalPaginas - MAX + 1));
+    const arr = [];
+    for (let i = inicio; i < inicio + MAX; i++) arr.push(i);
+    return arr;
+  }
+
   function renderPaginacao(totalPaginas) {
     if (totalPaginas <= 1) {
       pagination.innerHTML = '';
       return;
     }
+    const paginas = rangePaginas(totalPaginas, state.pagina);
     let html = '';
-    for (let i = 1; i <= totalPaginas; i++) {
+    if (state.pagina > 1) {
+      html += `<button class="page-btn page-arrow" data-page="${state.pagina - 1}" aria-label="Página anterior"><i class="fa-solid fa-chevron-left"></i></button>`;
+    }
+    for (const i of paginas) {
       html += `<button class="page-btn ${i === state.pagina ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    if (state.pagina < totalPaginas) {
+      html += `<button class="page-btn page-arrow" data-page="${state.pagina + 1}" aria-label="Próxima página"><i class="fa-solid fa-chevron-right"></i></button>`;
     }
     pagination.innerHTML = html;
   }
