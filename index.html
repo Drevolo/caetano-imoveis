@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Caetano Imóveis - Encontre imóveis para aluguel e venda em Goianésia e região. Apartamentos, casas, galpões, kitnets e mais." />
+  <title>Caetano Imóveis | Imóveis para Aluguel em Goianésia</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Lora:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23004274'/%3E%3Cpath d='M32 14l14 11v26H18V25z' fill='%23b28e4a'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===== TOP BAR ===== -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <span class="top-bar-slogan">
+        <i class="fa-solid fa-location-dot"></i> Goianésia - GO
+      </span>
+      <span class="top-bar-contact">
+        <i class="fa-solid fa-envelope"></i> contato@caetanoimoveis.com.br
+      </span>
+      <div class="top-bar-social">
+        <a href="https://www.facebook.com/caetanoimoveisgoianesia" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/caetanoimoveisgoianesia/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://api.whatsapp.com/send/?phone=5562985070819" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" id="site-header">
+    <div class="header-top">
+      <div class="container header-top-inner">
+        <a href="#home" class="logo">
+          <img src="https://caetanoimoveis.com.br/wp-content/uploads/2026/01/logomarca-caetano-1.png" alt="Caetano Imóveis" onerror="this.style.display='none';document.getElementById('logo-text').style.display='flex';" />
+          <span id="logo-text" style="display:none">Caetano <strong>Imóveis</strong></span>
+        </a>
+        <div class="header-contacts">
+          <div class="header-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>
+              <strong>Aluguel</strong>
+              <a href="tel:+5562985070819">(62) 98507-0819</a>
+            </div>
+          </div>
+          <div class="header-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>
+              <strong>Vendas</strong>
+              <a href="tel:+5562985739405">(62) 98573-9405</a>
+            </div>
+          </div>
+          <div class="header-contact-item hide-sm">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <strong>Horário</strong>
+              <span>07:30 - 17:00 · Seg-Sex</span>
+            </div>
+          </div>
+          <a href="#contato" class="btn btn-gold btn-criar-listagem hide-md">
+            <i class="fa-solid fa-plus"></i> Criar uma Listagem
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="header-bottom">
+      <div class="container nav-inner">
+        <ul class="main-nav" id="main-nav">
+          <li><a href="#home" class="active">Home</a></li>
+          <li><a href="#quem-somos">Quem Somos</a></li>
+          <li><a href="#imoveis">Aluguel</a></li>
+          <li><a href="#imoveis" data-status="Venda">Venda</a></li>
+          <li><a href="#financie">Financie</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="nav-fav" id="nav-fav-btn" aria-label="Favoritos" title="Meus Favoritos">
+            <i class="fa-regular fa-heart"></i>
+            <span class="fav-count" id="fav-count">0</span>
+          </button>
+          <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobile-menu">
+      <ul class="main-nav">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#quem-somos">Quem Somos</a></li>
+        <li><a href="#imoveis">Aluguel</a></li>
+        <li><a href="#imoveis" data-status="Venda">Venda</a></li>
+        <li><a href="#financie">Financie</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+      <a href="#contato" class="btn btn-gold btn-criar-listagem">
+        <i class="fa-solid fa-plus"></i> Criar uma Listagem
+      </a>
+    </div>
+  </header>
+
+  <!-- ===== HERO + BUSCA ===== -->
+  <section class="hero" id="home">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <h1>Mais do que vender imóveis, <span>construímos histórias.</span></h1>
+      <p>Atendimento humanizado e consultoria especializada para você comprar, vender ou alugar com tranquilidade.</p>
+
+      <div class="search-box">
+        <div class="search-tabs">
+          <button class="search-tab active" data-status="Aluguel">Aluguel</button>
+          <button class="search-tab" data-status="Venda">Venda</button>
+        </div>
+        <form class="search-form" id="search-form">
+          <div class="search-field">
+            <label for="f-busca"><i class="fa-solid fa-magnifying-glass"></i> Palavra-chave</label>
+            <input type="text" id="f-busca" placeholder="Digite uma palavra-chave..." />
+          </div>
+          <div class="search-field">
+            <label for="f-tipo"><i class="fa-solid fa-building"></i> Tipo de Imóvel</label>
+            <select id="f-tipo">
+              <option value="">Qualquer tipo</option>
+              <option value="Apartamento">Apartamento</option>
+              <option value="Casa">Casa</option>
+              <option value="Chácara">Chácara</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Galpão">Galpão</option>
+              <option value="Kitnet">Kitnet</option>
+              <option value="Lote">Lote</option>
+              <option value="Ponto/Casa">Ponto/Casa</option>
+              <option value="Espaço">Espaço</option>
+              <option value="Área">Área</option>
+              <option value="Fazenda">Fazenda</option>
+              <option value="Cobertura">Cobertura</option>
+              <option value="Imóvel">Imóvel</option>
+            </select>
+          </div>
+          <div class="search-field">
+            <label for="f-local"><i class="fa-solid fa-location-dot"></i> Localização</label>
+            <select id="f-local">
+              <option value="">Todas as cidades</option>
+              <option value="Goianésia">Goianésia</option>
+              <option value="Uruaçu">Uruaçu</option>
+              <option value="Souzalândia">Souzalândia</option>
+              <option value="Barro Alto">Barro Alto</option>
+              <option value="Cirilândia">Cirilândia</option>
+              <option value="Padre Bernardo">Padre Bernardo</option>
+              <option value="Artulândia">Artulândia</option>
+              <option value="Porangatu">Porangatu</option>
+            </select>
+          </div>
+          <div class="search-field search-field-price">
+            <label><i class="fa-solid fa-tags"></i> Faixa de Preço</label>
+            <div class="price-inputs">
+              <input type="number" id="f-preco-min" placeholder="Mín" min="0" />
+              <span>-</span>
+              <input type="number" id="f-preco-max" placeholder="Máx" min="0" />
+            </div>
+          </div>
+          <div class="search-field">
+            <label for="f-quartos"><i class="fa-solid fa-bed"></i> Quartos</label>
+            <select id="f-quartos">
+              <option value="0">Qualquer</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-search" id="btn-buscar">
+            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+          </button>
+          <button type="button" class="btn btn-reset" id="btn-reset">
+            <i class="fa-solid fa-rotate-left"></i> Limpar
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== IMÓVEIS ===== -->
+  <section class="listings" id="imoveis">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="section-tag">Aluguel</span>
+          <h2>Imóveis para Alugar</h2>
+        </div>
+        <div class="listing-tools">
+          <div class="sort-by">
+            <select id="sort-select">
+              <option value="padrao">Ordenação padrão</option>
+              <option value="preco-asc">Menor preço</option>
+              <option value="preco-desc">Maior preço</option>
+              <option value="data-desc">Mais recentes</option>
+              <option value="data-asc">Mais antigos</option>
+              <option value="tipo">Tipo de imóvel</option>
+            </select>
+          </div>
+          <div class="view-switch">
+            <button class="switch-btn active" data-view="grid" aria-label="Visualização em grade"><i class="fa-solid fa-table-cells-large"></i></button>
+            <button class="switch-btn" data-view="list" aria-label="Visualização em lista"><i class="fa-solid fa-list"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="listings-meta">
+        <span id="result-count">0</span> imóveis encontrados
+        <span class="meta-sep">·</span>
+        <span id="result-range"></span>
+        <span class="filters-active" id="filters-active"></span>
+      </div>
+
+      <div class="listings-grid" id="listings-grid"></div>
+      <div class="listings-empty" id="listings-empty" style="display:none">
+        <i class="fa-solid fa-house-circle-xmark"></i>
+        <h3>Nenhum imóvel encontrado</h3>
+        <p>Ajuste os filtros de busca para encontrar o imóvel ideal.</p>
+        <button class="btn btn-reset-empty" onclick="resetFilters()"><i class="fa-solid fa-rotate-left"></i> Limpar filtros</button>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </section>
+
+  <!-- ===== NÚMEROS ===== -->
+  <section class="stats">
+    <div class="container stats-grid">
+      <div class="stat-box">
+        <i class="fa-solid fa-house-circle-check"></i>
+        <div class="stat-num" data-count="87">0</div>
+        <div class="stat-label">Imóveis disponíveis</div>
+      </div>
+      <div class="stat-box">
+        <i class="fa-solid fa-key"></i>
+        <div class="stat-num" data-count="30">0</div>
+        <div class="stat-label">Anos de experiência</div>
+      </div>
+      <div class="stat-box">
+        <i class="fa-solid fa-handshake"></i>
+        <div class="stat-num" data-count="1500">0</div>
+        <div class="stat-label">Clientes atendidos</div>
+      </div>
+      <div class="stat-box">
+        <i class="fa-solid fa-city"></i>
+        <div class="stat-num" data-count="8">0</div>
+        <div class="stat-label">Cidades atendidas</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== QUEM SOMOS ===== -->
+  <section class="about" id="quem-somos">
+    <div class="container about-grid">
+      <div class="about-media">
+        <img src="https://caetanoimoveis.com.br/wp-content/uploads/2026/01/logomarca-caetano-1.png" alt="Caetano Imóveis" onerror="this.style.display='none'" />
+        <div class="about-card">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>Confiança e transparência</h3>
+          <p>Atendimento personalizado para você encontrar o imóvel perfeito.</p>
+        </div>
+      </div>
+      <div class="about-content">
+        <span class="section-tag">Quem Somos</span>
+        <h2>Mais de 30 anos <span>construindo histórias</span></h2>
+        <p class="about-lead">
+          Com mais de 30 anos de experiência no mercado imobiliário, a Caetano Imóveis se consolidou como
+          referência em confiança, credibilidade e excelência em atendimento. Nossa trajetória é marcada por
+          centenas de sonhos realizados e relacionamentos construídos com ética, respeito e profissionalismo.
+        </p>
+        <div class="about-features">
+          <div class="about-feature">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <h4>Compra e Venda</h4>
+              <p>Imóveis residenciais e comerciais com as melhores condições do mercado.</p>
+            </div>
+          </div>
+          <div class="about-feature">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <h4>Locação</h4>
+              <p>Casas, apartamentos, galpões e kitnets para você morar ou investir.</p>
+            </div>
+          </div>
+          <div class="about-feature">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <h4>Assessoria completa</h4>
+              <p>Acompanhamento em todo o processo, da visita à assinatura do contrato.</p>
+            </div>
+          </div>
+        </div>
+        <p class="about-lead">
+          Mais do que uma imobiliária, somos parceiros em um dos momentos mais importantes da vida:
+          a conquista do imóvel ideal. Conte com a Caetano Imóveis, há três décadas transformando
+          projetos em realidade.
+        </p>
+        <a href="#contato" class="btn btn-gold"><i class="fa-solid fa-phone"></i> Fale com a gente</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINANCIE ===== -->
+  <section class="financie" id="financie">
+    <div class="container financie-grid">
+      <div class="financie-content">
+        <span class="section-tag">Financie</span>
+        <h2>Realize o sonho da <span>casa própria</span></h2>
+        <p>
+          Realizar o sonho da casa própria nunca esteve tão fácil! Na <strong>Caetano Imóveis</strong>,
+          você encontra condições especiais para financiar sua casa com segurança, transparência e a
+          orientação de quem entende do assunto.
+        </p>
+        <p>
+          Nossa equipe está pronta para ajudar em cada etapa do processo, desde a escolha do imóvel
+          até a aprovação do crédito, garantindo praticidade e tranquilidade para você conquistar o seu
+          lar do jeito que sempre sonhou.
+        </p>
+        <a href="#contato" class="btn btn-gold"><i class="fa-solid fa-hand-holding-dollar"></i> Quero financiar</a>
+      </div>
+      <div class="financie-media">
+        <img src="https://caetanoimoveis.com.br/wp-content/uploads/2025/08/Sem-titulo-1-2.jpg" alt="Financie seu imóvel com a Caetano Imóveis" onerror="this.style.display='none'" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTATO ===== -->
+  <section class="contact" id="contato">
+    <div class="container">
+      <div class="section-head center">
+        <span class="section-tag">Contato</span>
+        <h2>Fale Conosco</h2>
+        <p>Estamos prontos para atender você de segunda a sexta, das 07:30 às 17:00.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-cards">
+          <div class="contact-card">
+            <i class="fa-solid fa-location-dot"></i>
+            <h3>Endereço</h3>
+            <p>R. 29, 365 Centro<br />Goianésia - GO</p>
+          </div>
+          <div class="contact-card">
+            <i class="fa-solid fa-phone-volume"></i>
+            <h3>Telefones</h3>
+            <p>Aluguel: <a href="tel:+5562985070819">(62) 98507-0819</a><br />Vendas: <a href="tel:+5562985739405">(62) 98573-9405</a></p>
+          </div>
+          <div class="contact-card">
+            <i class="fa-solid fa-envelope"></i>
+            <h3>E-mail</h3>
+            <p><a href="mailto:contato@caetanoimoveis.com.br">contato@caetanoimoveis.com.br</a></p>
+          </div>
+          <div class="contact-card">
+            <i class="fa-brands fa-whatsapp"></i>
+            <h3>WhatsApp</h3>
+            <p><a href="https://api.whatsapp.com/send/?phone=5562985070819" target="_blank">(62) 98507-0819</a></p>
+          </div>
+        </div>
+        <form class="contact-form" id="contact-form">
+          <div class="form-row">
+            <input type="text" id="c-nome" placeholder="Seu nome" required />
+            <input type="tel" id="c-telefone" placeholder="Seu telefone" required />
+          </div>
+          <div class="form-row">
+            <input type="email" id="c-email" placeholder="Seu e-mail" required />
+            <select id="c-interesse">
+              <option value="">Interesse</option>
+              <option>Alugar um imóvel</option>
+              <option>Vender um imóvel</option>
+              <option>Comprar um imóvel</option>
+              <option>Outros assuntos</option>
+            </select>
+          </div>
+          <textarea id="c-mensagem" placeholder="Escreva sua mensagem..." required></textarea>
+          <button type="submit" class="btn btn-search">
+            <i class="fa-brands fa-whatsapp"></i> Enviar pelo WhatsApp
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col footer-about">
+        <img src="https://caetanoimoveis.com.br/wp-content/uploads/2026/01/logomarca-caetano-1.png" alt="Caetano Imóveis" onerror="this.style.display='none'" />
+        <p>Imobiliária em Goianésia - GO com tradição e confiança no mercado de aluguel e venda de imóveis.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/caetanoimoveisgoianesia" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/caetanoimoveisgoianesia/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://api.whatsapp.com/send/?phone=5562985070819" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Cidade</h4>
+        <ul>
+          <li><a href="#imoveis" data-local="Goianésia">Goianésia</a></li>
+          <li><a href="#imoveis" data-local="Uruaçu">Uruaçu</a></li>
+          <li><a href="#imoveis" data-local="Souzalândia">Souzalândia</a></li>
+          <li><a href="#imoveis" data-local="Barro Alto">Barro Alto</a></li>
+          <li><a href="#imoveis" data-local="Cirilândia">Cirilândia</a></li>
+          <li><a href="#imoveis" data-local="Padre Bernardo">Padre Bernardo</a></li>
+          <li><a href="#imoveis" data-local="Artulândia">Artulândia</a></li>
+          <li><a href="#imoveis" data-local="Porangatu">Porangatu</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#quem-somos">Quem Somos</a></li>
+          <li><a href="#imoveis">Aluguel</a></li>
+          <li><a href="#imoveis" data-status="Venda">Venda</a></li>
+          <li><a href="#financie">Financie</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Fale Conosco</h4>
+        <ul class="footer-contact">
+          <li><i class="fa-solid fa-location-dot"></i> R. 29, 365 Centro - Goianésia - GO</li>
+          <li><i class="fa-solid fa-phone"></i> <a href="tel:+5562985070819">(62) 98507-0819</a></li>
+          <li><i class="fa-solid fa-phone"></i> <a href="tel:+5562985739405">(62) 98573-9405</a></li>
+          <li><i class="fa-solid fa-envelope"></i> <a href="mailto:contato@caetanoimoveis.com.br">contato@caetanoimoveis.com.br</a></li>
+          <li><i class="fa-solid fa-clock"></i> 07:30 - 17:00 · Seg-Sex</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        &copy; <span id="year"></span> Caetano Imóveis - Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== WHATSAPP FLUTUANTE ===== -->
+  <a href="https://api.whatsapp.com/send/?phone=5562985070819&text=Ol%C3%A1%21%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20im%C3%B3veis." class="whatsapp-float" target="_blank" aria-label="Fale conosco no WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- ===== MODAL FAVORITOS ===== -->
+  <div class="modal" id="fav-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-content modal-fav" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close-modal aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-body" id="fav-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/favoritos.js"></script>
+  <script src="js/imoveis.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

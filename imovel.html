@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Caetano Imóveis - Detalhes do imóvel. Encontre imóveis para aluguel e venda em Goianésia e região." />
+  <title>Caetano Imóveis | Detalhes do Imóvel</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Lora:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23004274'/%3E%3Cpath d='M32 14l14 11v26H18V25z' fill='%23b28e4a'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===== TOP BAR ===== -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <span class="top-bar-slogan">
+        <i class="fa-solid fa-location-dot"></i> Goianésia - GO
+      </span>
+      <span class="top-bar-contact">
+        <i class="fa-solid fa-envelope"></i> contato@caetanoimoveis.com.br
+      </span>
+      <div class="top-bar-social">
+        <a href="https://www.facebook.com/caetanoimoveisgoianesia" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/caetanoimoveisgoianesia/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://api.whatsapp.com/send/?phone=5562985070819" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" id="site-header">
+    <div class="header-top">
+      <div class="container header-top-inner">
+        <a href="index.html" class="logo">
+          <img src="https://caetanoimoveis.com.br/wp-content/uploads/2026/01/logomarca-caetano-1.png" alt="Caetano Imóveis" onerror="this.style.display='none';document.getElementById('logo-text').style.display='flex';" />
+          <span id="logo-text" style="display:none">Caetano <strong>Imóveis</strong></span>
+        </a>
+        <div class="header-contacts">
+          <div class="header-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>
+              <strong>Aluguel</strong>
+              <a href="tel:+5562985070819">(62) 98507-0819</a>
+            </div>
+          </div>
+          <div class="header-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>
+              <strong>Vendas</strong>
+              <a href="tel:+5562985739405">(62) 98573-9405</a>
+            </div>
+          </div>
+          <div class="header-contact-item hide-sm">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <strong>Horário</strong>
+              <span>07:30 - 17:00 · Seg-Sex</span>
+            </div>
+          </div>
+          <a href="index.html#contato" class="btn btn-gold btn-criar-listagem hide-md">
+            <i class="fa-solid fa-plus"></i> Criar uma Listagem
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="header-bottom">
+      <div class="container nav-inner">
+        <ul class="main-nav" id="main-nav">
+          <li><a href="index.html#home">Home</a></li>
+          <li><a href="index.html#quem-somos">Quem Somos</a></li>
+          <li><a href="index.html#imoveis">Aluguel</a></li>
+          <li><a href="index.html#imoveis" data-status="Venda">Venda</a></li>
+          <li><a href="index.html#financie">Financie</a></li>
+          <li><a href="index.html#contato">Contato</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="nav-fav" id="nav-fav-btn" aria-label="Favoritos" title="Meus Favoritos">
+            <i class="fa-regular fa-heart"></i>
+            <span class="fav-count" id="fav-count">0</span>
+          </button>
+          <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobile-menu">
+      <ul class="main-nav">
+        <li><a href="index.html#home">Home</a></li>
+        <li><a href="index.html#quem-somos">Quem Somos</a></li>
+        <li><a href="index.html#imoveis">Aluguel</a></li>
+        <li><a href="index.html#imoveis" data-status="Venda">Venda</a></li>
+        <li><a href="index.html#financie">Financie</a></li>
+        <li><a href="index.html#contato">Contato</a></li>
+      </ul>
+      <a href="index.html#contato" class="btn btn-gold btn-criar-listagem">
+        <i class="fa-solid fa-plus"></i> Criar uma Listagem
+      </a>
+    </div>
+  </header>
+
+  <!-- ===== DETALHE DO IMÓVEL ===== -->
+  <main class="pd-page" id="property-detail">
+    <p class="pd-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Carregando imóvel...</p>
+  </main>
+
+  <!-- ===== IMÓVEIS RELACIONADOS ===== -->
+  <section class="pd-related">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="section-tag">Outros imóveis</span>
+          <h2>Imóveis relacionados</h2>
+        </div>
+        <a href="index.html#imoveis" class="btn btn-reset">Ver todos</a>
+      </div>
+      <div class="listings-grid" id="pd-related"></div>
+    </div>
+  </section>
+
+  <!-- ===== CONTATO CTA ===== -->
+  <section class="financie" id="contato-cta">
+    <div class="container financie-grid">
+      <div class="financie-content">
+        <span class="section-tag">Atendimento</span>
+        <h2>Fale com a <span>Caetano Imóveis</span></h2>
+        <p>
+          Atendimento humanizado e consultoria especializada para você comprar, vender ou alugar com
+          tranquilidade. Estamos prontos para atender você de segunda a sexta, das 07:30 às 17:00.
+        </p>
+        <a href="index.html#contato" class="btn btn-gold"><i class="fa-solid fa-phone"></i> Fale com a gente</a>
+      </div>
+      <div class="financie-media">
+        <img src="https://caetanoimoveis.com.br/wp-content/uploads/2025/08/Sem-titulo-1-2.jpg" alt="Caetano Imóveis" onerror="this.style.display='none'" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col footer-about">
+        <img src="https://caetanoimoveis.com.br/wp-content/uploads/2026/01/logomarca-caetano-1.png" alt="Caetano Imóveis" onerror="this.style.display='none'" />
+        <p>Imobiliária em Goianésia - GO com tradição e confiança no mercado de aluguel e venda de imóveis.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/caetanoimoveisgoianesia" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/caetanoimoveisgoianesia/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://api.whatsapp.com/send/?phone=5562985070819" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Cidade</h4>
+        <ul>
+          <li><a href="index.html#imoveis" data-local="Goianésia">Goianésia</a></li>
+          <li><a href="index.html#imoveis" data-local="Uruaçu">Uruaçu</a></li>
+          <li><a href="index.html#imoveis" data-local="Souzalândia">Souzalândia</a></li>
+          <li><a href="index.html#imoveis" data-local="Barro Alto">Barro Alto</a></li>
+          <li><a href="index.html#imoveis" data-local="Cirilândia">Cirilândia</a></li>
+          <li><a href="index.html#imoveis" data-local="Padre Bernardo">Padre Bernardo</a></li>
+          <li><a href="index.html#imoveis" data-local="Artulândia">Artulândia</a></li>
+          <li><a href="index.html#imoveis" data-local="Porangatu">Porangatu</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="index.html#home">Home</a></li>
+          <li><a href="index.html#quem-somos">Quem Somos</a></li>
+          <li><a href="index.html#imoveis">Aluguel</a></li>
+          <li><a href="index.html#imoveis" data-status="Venda">Venda</a></li>
+          <li><a href="index.html#financie">Financie</a></li>
+          <li><a href="index.html#contato">Contato</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Fale Conosco</h4>
+        <ul class="footer-contact">
+          <li><i class="fa-solid fa-location-dot"></i> R. 29, 365 Centro - Goianésia - GO</li>
+          <li><i class="fa-solid fa-phone"></i> <a href="tel:+5562985070819">(62) 98507-0819</a></li>
+          <li><i class="fa-solid fa-phone"></i> <a href="tel:+5562985739405">(62) 98573-9405</a></li>
+          <li><i class="fa-solid fa-envelope"></i> <a href="mailto:contato@caetanoimoveis.com.br">contato@caetanoimoveis.com.br</a></li>
+          <li><i class="fa-solid fa-clock"></i> 07:30 - 17:00 · Seg-Sex</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        &copy; <span id="year"></span> Caetano Imóveis - Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== WHATSAPP FLUTUANTE ===== -->
+  <a href="https://api.whatsapp.com/send/?phone=5562985070819&text=Ol%C3%A1%21%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20im%C3%B3veis." class="whatsapp-float" target="_blank" aria-label="Fale conosco no WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- ===== MODAL FAVORITOS ===== -->
+  <div class="modal" id="fav-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-content modal-fav" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close-modal aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-body" id="fav-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/favoritos.js"></script>
+  <script src="js/imoveis.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/detalhe.js"></script>
+</body>
+</html>
