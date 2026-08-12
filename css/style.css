@@ -834,6 +834,7 @@ h1, h2, h3, h4, h5, h6 {
   .mobile-menu.open .main-nav { display: flex; }
   .nav-toggle { display: block; }
   .mobile-menu.open { display: block; }
+  .nav-inner { justify-content: flex-end; }
   .about-grid, .contact-grid, .financie-grid { grid-template-columns: 1fr; }
   .about-media { margin-bottom: 30px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
