@@ -32,6 +32,10 @@ a { text-decoration: none; color: var(--gold); transition: color .2s; }
 a:hover { color: var(--blue-dark); }
 ul { list-style: none; }
 
+button { touch-action: manipulation; }
+html { -webkit-tap-highlight-color: transparent; }
+img, iframe, video { max-width: 100%; }
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Lora', serif;
   font-weight: 400;
@@ -506,7 +510,7 @@ h1, h2, h3, h4, h5, h6 {
 .listings-empty h3 { margin-bottom: 8px; }
 .listings-empty p { color: var(--placeholder); margin-bottom: 20px; }
 
-/* ===== PAGINAÃ‡ÃƒO ===== */
+/* ===== PAGINAÇÃO ===== */
 .pagination {
   display: flex;
   justify-content: center;
@@ -798,7 +802,7 @@ h1, h2, h3, h4, h5, h6 {
 .modal-content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
 .modal-content::-webkit-scrollbar-track { background: #f1f1f1; }
 
-/* ===== ANIMAÃ‡Ã•ES ===== */
+/* ===== ANIMAÇÕES ===== */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
@@ -823,7 +827,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 900px) {
-  .main-nav { display: none; }
+  .nav-inner .main-nav { display: none; }
+  .mobile-menu.open .main-nav { display: flex; }
   .nav-toggle { display: block; }
   .mobile-menu.open { display: block; }
   .about-grid, .contact-grid, .financie-grid { grid-template-columns: 1fr; }
@@ -835,42 +840,103 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 700px) {
-  .hero { padding: 60px 0 50px; }
-  .hero h1 { font-size: 32px; }
-  .search-form { grid-template-columns: 1fr; }
-  .search-form .btn { grid-column: span 1; }
+  .container { padding: 0 16px; }
+
+  /* header */
+  .header-top-inner { gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+  .logo img { height: 46px; }
+  .nav-inner { min-height: 50px; }
+  .nav-toggle, .nav-fav { min-width: 44px; min-height: 44px; }
+  .nav-fav { font-size: 20px; }
+  .header-contacts { gap: 12px; }
+
+  /* hero */
+  .hero { padding: 52px 0 44px; }
+  .hero h1 { font-size: 30px; margin-bottom: 12px; }
+  .hero p { font-size: 15px; margin-bottom: 28px; }
+
+  /* busca */
+  .search-form { grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+  .search-field { grid-column: 1 / -1; }
+  .search-form .btn { grid-column: span 1; padding: 14px 10px; }
+  .search-form input, .search-form select { min-height: 46px; font-size: 15px; }
   .search-tabs { width: 100%; }
   .search-tab { flex: 1; text-align: center; padding: 13px 10px; }
-  .listings-grid { grid-template-columns: 1fr; }
+
+  /* listagens */
+  .listings { padding: 40px 0 48px; }
+  .section-head { flex-direction: column; align-items: center; text-align: center; }
+  .section-head h2 { font-size: 24px; }
+  .listings-grid { grid-template-columns: 1fr; gap: 18px; }
+  .property-thumb img { height: 200px; }
+  .listing-tools { width: 100%; justify-content: space-between; }
+  .sort-by { flex: 1; min-width: 0; }
+  .sort-by select { width: 100%; }
+  .listings-meta { justify-content: center; text-align: center; }
   .view-list .property-card { grid-template-columns: 1fr; }
   .view-list .property-thumb img { height: 220px; }
+
+  /* stats */
+  .stats { padding: 40px 0; }
+  .stats-grid { gap: 20px 12px; }
+  .stat-num { font-size: 30px; }
+  .stat-box i { font-size: 28px; }
+  .stat-label { font-size: 13px; }
+
+  /* about / financie / contato */
+  .about, .financie, .contact { padding: 44px 0; }
+  .about-grid, .financie-grid { gap: 32px; }
+  .about-content h2, .financie-content h2 { font-size: 26px; }
+  .about-card { position: static; max-width: none; margin-top: 16px; }
+  .about-media > img { padding: 28px; }
+  .contact-grid { gap: 28px; }
   .contact-cards { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-  .header-contacts { gap: 14px; }
-  .m-amenities { grid-template-columns: repeat(2, 1fr); }
-  .section-head h2 { font-size: 26px; }
-  .logo img { height: 48px; }
-  .stat-num { font-size: 32px; }
-  .listings { padding: 40px 0 50px; }
-  .about, .financie, .contact { padding: 45px 0; }
+  .contact-form { padding: 20px 16px; }
+
+  /* footer */
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; padding: 44px 16px 32px; }
+
+  /* modal bottom sheet */
+  .modal-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+  }
+  .modal-hero { margin-top: 0; }
+  .modal-hero img { height: 220px; }
+  .modal-details { padding: 18px 16px 24px; }
+  .modal-details .m-price { font-size: 24px; }
+  .modal-details h3 { font-size: 20px; }
+  .m-amenities { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .modal-actions .btn { flex: 1 1 100%; }
+  .fav-list { padding: 16px 16px 22px; }
+  .fav-list h3 { padding-top: 46px; }
+
+  /* whatsapp */
+  .whatsapp-float { width: 54px; height: 54px; font-size: 27px; bottom: 18px; right: 18px; }
 }
 
-@media (max-width: 480px) {
-  .header-top-inner { gap: 12px; }
+@media (max-width: 520px) {
+  .header-top-inner { flex-direction: column; justify-content: center; gap: 8px; }
   .header-contacts { gap: 10px; }
-  .header-contact-item i { width: 34px; height: 34px; font-size: 17px; }
-  .header-contact-item div { display: none; }
-  .hero h1 { font-size: 27px; }
-  .hero p { font-size: 15px; }
-  .search-form { padding: 16px; }
-  .section-head { justify-content: center; text-align: center; }
-  .listing-tools { justify-content: center; width: 100%; }
-  .listings-meta { justify-content: center; text-align: center; }
-  .price-inputs input { width: 100%; }
+  .header-contact-item strong { display: none; }
+  .search-tab { font-size: 13px; padding: 12px 8px; }
+  .hero h1 { font-size: 26px; }
+  .hero p { font-size: 14px; }
+  .section-head h2 { font-size: 22px; }
+  .price-inputs input { min-height: 46px; }
   .property-price { font-size: 19px; }
+  .stat-num { font-size: 26px; }
   .whatsapp-float { width: 52px; height: 52px; font-size: 26px; bottom: 16px; right: 16px; }
-  .footer-grid { padding: 40px 20px 30px; }
+  .footer-grid { padding: 40px 16px 30px; }
 }
 
 /* ===== PÁGINA DO IMÓVEL ===== */
@@ -983,22 +1049,37 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 700px) {
-  .pd-hero img { height: 300px; }
-  .pd-head h1 { font-size: 24px; }
-  .pd-amenities { grid-template-columns: repeat(2, 1fr); }
+  .pd-page { padding-bottom: 44px; }
+  .breadcrumb { padding: 18px 16px 14px; }
+  .pd-hero { margin-bottom: 24px; }
+  .pd-hero img { height: 260px; }
+  .pd-head h1 { font-size: 23px; }
+  .pd-price { font-size: 28px; }
+  .pd-amenities { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px 0; }
   .pd-side { grid-template-columns: 1fr; }
   .pd-side .btn-full { grid-column: auto; }
+  .pd-box { padding: 20px 16px; }
+  .pd-box h2 { font-size: 20px; }
+  .pd-map iframe { height: 260px; }
+  .pd-facts li { flex-direction: column; gap: 4px; }
+  .pd-facts li span { min-width: 0; }
+  .pd-related { padding: 44px 0; }
   .pd-related .listings-grid { grid-template-columns: 1fr; }
-  .pd-box { padding: 20px; }
-  .pd-map iframe { height: 280px; }
-  .pd-price { font-size: 28px; }
 }
 
 @media (max-width: 480px) {
-  .breadcrumb { padding: 18px 20px 12px; font-size: 12px; }
-  .pd-hero img { height: 230px; }
-  .pd-amenities { gap: 10px; }
-  .pd-facts li span { min-width: 110px; }
+  .breadcrumb { padding: 14px 16px 12px; font-size: 12px; }
+  .pd-hero img { height: 220px; }
+  .pd-amenities { gap: 8px; }
   .pd-contact, .pd-card { padding: 20px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  html { scroll-behavior: auto; }
 }
 
