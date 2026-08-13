@@ -311,6 +311,15 @@
       toggleFavorito(id);
       return;
     }
+    if (e.target.closest('.property-thumb') && window.Lightbox) {
+      const imovel = IMOVEIS.find(i => i.id === id);
+      if (imovel) {
+        const active = card.querySelector('.prop-slide.active');
+        const start = active ? Number(active.dataset.index) : 0;
+        Lightbox.open(fotosDe(imovel), start, imovel.titulo);
+        return;
+      }
+    }
     window.location.href = 'imovel.html?id=' + id;
   });
 

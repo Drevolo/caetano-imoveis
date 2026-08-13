@@ -204,8 +204,17 @@
     if (prevBtn) prevBtn.addEventListener('click', () => { showGallery(galIdx - 1); startGalTimer(); });
     if (nextBtn) nextBtn.addEventListener('click', () => { showGallery(galIdx + 1); startGalTimer(); });
 
+    if (galMain) galMain.addEventListener('click', () => {
+      if (window.Lightbox) Lightbox.open(galFotos, galIdx, imovel.titulo);
+    });
+
     $$('.pd-gallery-thumb').forEach(t => {
-      t.addEventListener('click', () => { showGallery(Number(t.dataset.thumb)); startGalTimer(); });
+      t.addEventListener('click', () => {
+        const i = Number(t.dataset.thumb);
+        showGallery(i);
+        startGalTimer();
+        if (window.Lightbox) Lightbox.open(galFotos, i, imovel.titulo);
+      });
     });
 
     if (galMain) {
@@ -298,6 +307,13 @@
           const openFav = $('#fav-modal.open');
           if (openFav) renderFavoritosModal();
           return;
+        }
+        if (e.target.closest('.property-thumb') && window.Lightbox) {
+          const rel = IMOVEIS.find(i => i.id === iid);
+          if (rel) {
+            Lightbox.open(fotosDe(rel), 0, rel.titulo);
+            return;
+          }
         }
         window.location.href = 'imovel.html?id=' + iid;
       });
