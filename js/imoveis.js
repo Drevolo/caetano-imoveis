@@ -1,4 +1,4 @@
-const IMOVEIS = [
+window.IMOVEIS = [
   {
     id: 1,
     referencia: "CI-001",
@@ -2263,7 +2263,7 @@ const IMOVEIS = [
   }
 ];
 
-const CONTATOS = {
+window.CONTATOS = {
   telefoneAluguel: "(62) 98507-0819",
   telefoneVendas: "(62) 98573-9405",
   telefoneVendas2: "(62) 98415-8065",
