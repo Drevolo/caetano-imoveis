@@ -22,7 +22,7 @@
   let client = null;
 
   function configOk() {
-    return window.CONFIG &&
+    return typeof CONFIG !== 'undefined' &&
       CONFIG.supabaseUrl && CONFIG.supabaseUrl.indexOf("SEU-PROJETO") === -1 &&
       CONFIG.supabaseAnonKey && CONFIG.supabaseAnonKey.indexOf("SUA-ANON") === -1;
   }

@@ -1,4 +1,4 @@
-const CONFIG = {
+window.CONFIG = {
   supabaseUrl: "https://bcltcegokxujqxwbhato.supabase.co",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjbHRjZWdva3h1anF4d2JoYXRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MDg1NDQsImV4cCI6MjEwMjE4NDU0NH0.g9FWyPVizyGkGL7mWs8WMbBeNlvgNJTSQAGfE4ZgHxY",
   cloudinaryCloud: "kpy7nies",
