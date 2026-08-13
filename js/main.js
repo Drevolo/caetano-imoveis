@@ -65,13 +65,56 @@
     return l;
   }
 
+  /* ============ CARROSSEL DOS CARDS ============ */
+  const ERR_IMG = "this.onerror=null;this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
+
+  function fotosDe(imovel) {
+    const arr = Array.isArray(imovel.fotos) ? imovel.fotos.filter(Boolean) : [];
+    return arr.length ? arr : [imovel.imagem];
+  }
+
+  function cardThumb(imovel) {
+    const fotos = fotosDe(imovel).map(u => otimizarImagem(u, 640));
+    if (fotos.length === 1) {
+      return `<img src="${fotos[0]}" alt="${imovel.titulo}" loading="lazy" onerror="${ERR_IMG}" />`;
+    }
+    const slides = fotos.map((u, i) =>
+      `<img class="prop-slide${i === 0 ? ' active' : ''}" src="${u}" alt="${imovel.titulo} - Foto ${i + 1}" loading="lazy" onerror="${ERR_IMG}" data-index="${i}" />`
+    ).join('');
+    return `
+      <div class="prop-carousel" data-total="${fotos.length}">
+        <div class="prop-slides">${slides}</div>
+        <button class="carousel-prev" data-carousel="prev" aria-label="Foto anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="carousel-next" data-carousel="next" aria-label="Próxima foto"><i class="fa-solid fa-chevron-right"></i></button>
+        <span class="carousel-count">1/${fotos.length}</span>
+      </div>`;
+  }
+
+  function showSlide(container, idx) {
+    const slides = container.querySelectorAll('.prop-slide');
+    if (!slides.length) return;
+    const total = slides.length;
+    idx = ((idx % total) + total) % total;
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    const count = container.querySelector('.carousel-count');
+    if (count) count.textContent = (idx + 1) + '/' + total;
+    container.dataset.index = idx;
+  }
+
+  let carouselPaused = false;
+  function avancarCarrossel() {
+    if (carouselPaused) return;
+    $$('#listings-grid .prop-carousel').forEach(c => showSlide(c, Number(c.dataset.index || 0) + 1));
+  }
+  setInterval(avancarCarrossel, 3500);
+
   /* ============ RENDER ============ */
   function cardHTML(imovel, isFav) {
     const price = formatPrice(imovel.preco);
     return `
       <article class="property-card" data-id="${imovel.id}">
         <div class="property-thumb">
-          <img src="${otimizarImagem(imovel.imagem, 640)}" alt="${imovel.titulo}" loading="lazy" onerror="this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'" />
+          ${cardThumb(imovel)}
           <div class="property-badges">
             <span class="badge">${imovel.status}</span>
           </div>
@@ -139,6 +182,12 @@
 
     grid.className = 'listings-grid grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3' + (state.view === 'list' ? ' view-list' : '');
     grid.innerHTML = pagina.map(i => cardHTML(i, state.favoritos.includes(i.id))).join('');
+
+    $$('#listings-grid .prop-carousel').forEach(c => {
+      c.dataset.index = 0;
+      c.addEventListener('mouseenter', () => { carouselPaused = true; });
+      c.addEventListener('mouseleave', () => { carouselPaused = false; });
+    });
 
     renderPaginacao(totalPaginas);
 
@@ -247,6 +296,13 @@
 
   /* ============ EVENTOS (delegação) ============ */
   grid.addEventListener('click', e => {
+    const arrow = e.target.closest('[data-carousel]');
+    if (arrow) {
+      const container = arrow.closest('.prop-carousel');
+      const dir = arrow.dataset.carousel === 'next' ? 1 : -1;
+      showSlide(container, Number(container.dataset.index || 0) + dir);
+      return;
+    }
     const card = e.target.closest('.property-card');
     if (!card) return;
     const id = Number(card.dataset.id);
