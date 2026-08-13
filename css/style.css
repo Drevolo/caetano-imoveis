@@ -138,12 +138,12 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   flex-wrap: wrap;
 }
 
-.logo img { height: 62px; width: auto; }
+.logo img { height: 50px; width: auto; }
 #logo-text { font-family: 'Lora', serif; font-size: 26px; color: var(--blue-dark); }
 #logo-text strong { color: var(--gold); font-weight: 600; }
 
@@ -902,8 +902,8 @@ h1, h2, h3, h4, h5, h6 {
   .container { padding: 0 16px; }
 
   /* header */
-  .header-top-inner { gap: 12px; padding-top: 6px; padding-bottom: 6px; }
-  .logo img { height: 46px; }
+  .header-top-inner { gap: 12px; padding-top: 3px; padding-bottom: 3px; }
+  .logo img { height: 38px; }
   .nav-inner { min-height: 50px; }
   .nav-toggle, .nav-fav { min-width: 44px; min-height: 44px; }
   .nav-fav { font-size: 20px; }
