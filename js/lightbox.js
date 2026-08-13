@@ -50,6 +50,28 @@
     img.alt = (titulo ? titulo + ' - ' : '') + 'Foto ' + (idx + 1);
     box.querySelector('.lightbox-count').textContent = (idx + 1) + ' / ' + imgs.length;
     box.querySelector('.lightbox-caption').textContent = titulo + ' · ' + (idx + 1) + ' de ' + imgs.length;
+    preloadNear();
+  }
+
+  var preloaded = {};
+  function optim(u) {
+    return (typeof otimizarImagem === 'function') ? otimizarImagem(u, 1600) : u;
+  }
+  function preloadOne(u) {
+    if (!u || preloaded[u]) return;
+    preloaded[u] = true;
+    var im = new Image();
+    im.src = u;
+  }
+  function preloadNear() {
+    var total = imgs.length;
+    if (total < 2) return;
+    var vizinhos = total === 2 ? [idx - 1] : [idx - 1, idx + 1];
+    vizinhos.forEach(function (n) {
+      var real = ((n % total) + total) % total;
+      if (real === idx) return;
+      preloadOne(optim(imgs[real]));
+    });
   }
 
   function go(n) {
