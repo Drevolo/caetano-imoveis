@@ -20,6 +20,54 @@
 
   const ERR_HERO = "this.onerror=null;this.src='https://via.placeholder.com/1200x520/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
   const ERR_THUMB = "this.onerror=null;this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'";
+  const ERR_CARD = "this.onerror=null;this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
+
+  /* ============ CARROSSEL DOS CARDS (relacionados) ============ */
+  function cardThumb(item) {
+    const fotos = fotosDe(item).map(u => otimizarImagem(u, 640));
+    if (fotos.length === 1) {
+      return `<img src="${fotos[0]}" alt="${item.titulo}" loading="lazy" onerror="${ERR_CARD}" />`;
+    }
+    const slides = fotos.map((u, i) =>
+      `<img class="prop-slide${i === 0 ? ' active' : ''}" src="${u}" alt="${item.titulo} - Foto ${i + 1}" loading="lazy" onerror="${ERR_CARD}" data-index="${i}" />`
+    ).join('');
+    return `
+      <div class="prop-carousel" data-total="${fotos.length}">
+        <div class="prop-slides">${slides}</div>
+        <button class="carousel-prev" data-carousel="prev" aria-label="Foto anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="carousel-next" data-carousel="next" aria-label="Próxima foto"><i class="fa-solid fa-chevron-right"></i></button>
+        <span class="carousel-count">1/${fotos.length}</span>
+      </div>`;
+  }
+
+  function showCardSlide(container, idx) {
+    const slides = container.querySelectorAll('.prop-slide');
+    if (!slides.length) return;
+    const total = slides.length;
+    idx = ((idx % total) + total) % total;
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    const count = container.querySelector('.carousel-count');
+    if (count) count.textContent = (idx + 1) + '/' + total;
+    container.dataset.index = idx;
+  }
+
+  let relCarouselPaused = false;
+  function avancarRelacionados() {
+    if (relCarouselPaused) return;
+    const box = $('#pd-related');
+    if (box) $$('.prop-carousel', box).forEach(c => showCardSlide(c, Number(c.dataset.index || 0) + 1));
+  }
+  setInterval(avancarRelacionados, 3500);
+
+  function iniciarCarrosselRelacionados() {
+    const box = $('#pd-related');
+    if (!box) return;
+    $$('.prop-carousel', box).forEach(c => {
+      c.dataset.index = 0;
+      c.addEventListener('mouseenter', () => { relCarouselPaused = true; });
+      c.addEventListener('mouseleave', () => { relCarouselPaused = false; });
+    });
+  }
 
   function galeriaHTML(item) {
     const gal = fotosDe(item);
@@ -249,7 +297,7 @@
       return `
         <article class="property-card" data-id="${item.id}">
           <div class="property-thumb">
-            <img src="${otimizarImagem(item.imagem, 640)}" alt="${item.titulo}" loading="lazy" onerror="this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'" />
+            ${cardThumb(item)}
             <div class="property-badges">
               <span class="badge">${item.status}</span>
             </div>
@@ -291,12 +339,20 @@
         return;
       }
       box.innerHTML = rel.map(i => cardHTML(i, Favoritos.read().includes(i.id))).join('');
+      iniciarCarrosselRelacionados();
     }
     renderRelated();
 
     const relatedBox = $('#pd-related');
     if (relatedBox) {
       relatedBox.addEventListener('click', e => {
+        const arrow = e.target.closest('[data-carousel]');
+        if (arrow) {
+          const container = arrow.closest('.prop-carousel');
+          const dir = arrow.dataset.carousel === 'next' ? 1 : -1;
+          showCardSlide(container, Number(container.dataset.index || 0) + dir);
+          return;
+        }
         const card = e.target.closest('.property-card');
         if (!card) return;
         const iid = Number(card.dataset.id);
@@ -311,7 +367,9 @@
         if (e.target.closest('.property-thumb') && window.Lightbox) {
           const rel = IMOVEIS.find(i => i.id === iid);
           if (rel) {
-            Lightbox.open(fotosDe(rel), 0, rel.titulo);
+            const active = card.querySelector('.prop-slide.active');
+            const start = active ? Number(active.dataset.index) : 0;
+            Lightbox.open(fotosDe(rel), start, rel.titulo);
             return;
           }
         }
