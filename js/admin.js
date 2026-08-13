@@ -419,6 +419,38 @@
     }
   }
 
+  /* ============ APLICAR FOTOS MIGRADAS (CLOUDINARY) ============ */
+  async function aplicarFotosMigradas() {
+    const box = $('#admin-msg');
+    limparMsg(box);
+    if (!configOk()) { msg(box, 'Configure o Supabase em js/config.js antes.', 'err'); return; }
+    try {
+      const res = await fetch('js/fotos-migradas.json');
+      if (!res.ok) throw new Error('Falha ao baixar js/fotos-migradas.json (HTTP ' + res.status + ').');
+      const FOTOS = await res.json();
+      const ids = Object.keys(FOTOS).map(Number).sort((a, b) => a - b);
+      if (!ids.length) { msg(box, 'Arquivo de fotos migradas vazio.', 'err'); return; }
+      if (!confirm('Aplicar ' + ids.length + ' galerias migradas (Cloudinary) ao banco? Sobrescreve imagem e fotos de cada imóvel.')) return;
+
+      let ok = 0, falhas = 0;
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        const fotos = FOTOS[id] || [];
+        if (!fotos.length) continue;
+        const { error } = await client.from('imoveis')
+          .update({ imagem: fotos[0], fotos, updated_at: new Date().toISOString() })
+          .eq('id', id);
+        if (error) { falhas++; console.warn('Falha ao atualizar #' + id, error); }
+        else ok++;
+        if (i % 10 === 0 || i === ids.length - 1) msg(box, 'Aplicando fotos... ' + (i + 1) + ' de ' + ids.length, 'info');
+      }
+      msg(box, 'Fotos aplicadas: ' + ok + ' imóveis atualizados' + (falhas ? ', ' + falhas + ' falhas (veja o console).' : ' com sucesso!'), ok ? 'ok' : 'err');
+      await carregarLista();
+    } catch (e) {
+      msg(box, 'Erro ao aplicar fotos: ' + e.message, 'err');
+    }
+  }
+
   /* ============ EVENTOS ============ */
   $('#login-form').addEventListener('submit', e => {
     e.preventDefault();
@@ -431,6 +463,7 @@
   $('#btn-cancelar').addEventListener('click', fecharForm);
   $('#btn-importar').addEventListener('click', importarBaseLocal);
   $('#btn-migrar').addEventListener('click', migrarFotos);
+  $('#btn-aplicar-fotos').addEventListener('click', aplicarFotosMigradas);
 
   $('#admin-busca').addEventListener('input', renderLista);
 
