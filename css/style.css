@@ -138,8 +138,8 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-top: 14px;
-  padding-bottom: 14px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   flex-wrap: wrap;
 }
 
@@ -902,7 +902,7 @@ h1, h2, h3, h4, h5, h6 {
   .container { padding: 0 16px; }
 
   /* header */
-  .header-top-inner { gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+  .header-top-inner { gap: 12px; padding-top: 6px; padding-bottom: 6px; }
   .logo img { height: 46px; }
   .nav-inner { min-height: 50px; }
   .nav-toggle, .nav-fav { min-width: 44px; min-height: 44px; }
