@@ -12,6 +12,36 @@
 
   const WA_PHONE = '5562985070819';
 
+  /* ============ FOTOS (com fallback para a capa) ============ */
+  function fotosDe(item) {
+    const arr = Array.isArray(item.fotos) ? item.fotos.filter(Boolean) : [];
+    return arr.length ? arr : [item.imagem];
+  }
+
+  const ERR_HERO = "this.onerror=null;this.src='https://via.placeholder.com/1200x520/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
+  const ERR_THUMB = "this.onerror=null;this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'";
+
+  function galeriaHTML(item) {
+    const gal = fotosDe(item);
+    const main = `<img class="pd-gallery-img active" id="pd-gallery-img" src="${otimizarImagem(gal[0], 1280)}" alt="${item.titulo}" onerror="${ERR_HERO}" />`;
+    if (gal.length === 1) return `<div class="pd-gallery"><div class="pd-gallery-main">${main}</div></div>`;
+    return `
+      <div class="pd-gallery">
+        <div class="pd-gallery-main" id="pd-gallery-main">
+          ${main}
+          <button class="pd-gallery-prev" id="pd-gallery-prev" aria-label="Foto anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="pd-gallery-next" id="pd-gallery-next" aria-label="Próxima foto"><i class="fa-solid fa-chevron-right"></i></button>
+          <span class="pd-gallery-count" id="pd-gallery-count">1 / ${gal.length}</span>
+        </div>
+        <div class="pd-gallery-thumbs" id="pd-gallery-thumbs">
+          ${gal.map((u, i) =>
+            `<button class="pd-gallery-thumb${i === 0 ? ' active' : ''}" data-thumb="${i}" aria-label="Foto ${i + 1}">
+              <img src="${otimizarImagem(u, 200)}" alt="${item.titulo} - Foto ${i + 1}" loading="lazy" onerror="${ERR_THUMB}" />
+            </button>`).join('')}
+        </div>
+      </div>`;
+  }
+
   /* ============ EXTRAS ============ */
   function initExtras() {
     $('#year').textContent = new Date().getFullYear();
@@ -72,7 +102,7 @@
       </nav>
 
       <div class="container pd-hero">
-        <img src="${otimizarImagem(imovel.imagem, 1280)}" alt="${imovel.titulo}" onerror="this.src='https://via.placeholder.com/1200x520/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'" />
+        ${galeriaHTML(imovel)}
         <span class="badge">${imovel.status}</span>
       </div>
 
@@ -143,6 +173,49 @@
         </aside>
       </div>
     `;
+
+    /* ============ GALERIA ============ */
+    const galFotos = fotosDe(imovel);
+    const galMain = $('#pd-gallery-img');
+    const galCount = $('#pd-gallery-count');
+    let galIdx = 0;
+    let galTimer = null;
+
+    function showGallery(idx) {
+      const n = galFotos.length;
+      if (!n || !galMain) return;
+      galIdx = ((idx % n) + n) % n;
+      galMain.src = otimizarImagem(galFotos[galIdx], 1280);
+      galMain.classList.add('active');
+      if (galCount) galCount.textContent = (galIdx + 1) + ' / ' + n;
+      $$('.pd-gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === galIdx));
+    }
+
+    function startGalTimer() {
+      stopGalTimer();
+      galTimer = setInterval(() => showGallery(galIdx + 1), 4000);
+    }
+    function stopGalTimer() {
+      if (galTimer) { clearInterval(galTimer); galTimer = null; }
+    }
+
+    const prevBtn = $('#pd-gallery-prev');
+    const nextBtn = $('#pd-gallery-next');
+    if (prevBtn) prevBtn.addEventListener('click', () => { showGallery(galIdx - 1); startGalTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { showGallery(galIdx + 1); startGalTimer(); });
+
+    $$('.pd-gallery-thumb').forEach(t => {
+      t.addEventListener('click', () => { showGallery(Number(t.dataset.thumb)); startGalTimer(); });
+    });
+
+    if (galMain) {
+      const holder = galMain.closest('.pd-gallery-main');
+      if (holder) {
+        holder.addEventListener('mouseenter', stopGalTimer);
+        holder.addEventListener('mouseleave', startGalTimer);
+      }
+    }
+    if (galFotos.length > 1) startGalTimer();
 
     /* ============ FAVORITAR ============ */
     const favBtn = $('#pd-fav-btn');
