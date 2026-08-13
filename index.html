@@ -112,7 +112,7 @@
           <button class="search-tab active" data-status="Aluguel">Aluguel</button>
           <button class="search-tab" data-status="Venda">Venda</button>
         </div>
-        <form class="search-form grid grid-cols-1 items-end gap-3.5 p-4 sm:grid-cols-2 sm:gap-4 sm:p-5 lg:grid-cols-[1.3fr_1fr_1fr_1.4fr_0.8fr_auto_auto] lg:gap-3.5 lg:p-[22px]" id="search-form">
+        <form class="search-form grid grid-cols-1 items-end gap-3.5 p-4 sm:grid-cols-2 sm:gap-4 sm:p-5 lg:grid-cols-[1.1fr_1fr_0.9fr_1fr_1.2fr_1.1fr_0.7fr_auto_auto] lg:gap-3.5 lg:p-[22px]" id="search-form">
           <div class="search-field col-span-full sm:col-span-1">
             <label for="f-busca"><i class="fa-solid fa-magnifying-glass"></i> Palavra-chave</label>
             <input type="text" id="f-busca" placeholder="Digite uma palavra-chave..." />
@@ -121,19 +121,48 @@
             <label for="f-tipo"><i class="fa-solid fa-building"></i> Tipo de Imóvel</label>
             <select id="f-tipo">
               <option value="">Qualquer tipo</option>
-              <option value="Apartamento">Apartamento</option>
-              <option value="Casa">Casa</option>
-              <option value="Chácara">Chácara</option>
+              <optgroup label="Residencial">
+                <option value="Apartamento">Apartamento</option>
+                <option value="Casa">Casa</option>
+                <option value="Casa em Condomínio">Casa em Condomínio</option>
+                <option value="Cobertura">Cobertura</option>
+                <option value="Kitnet">Kitnet</option>
+                <option value="Sobrado">Sobrado</option>
+              </optgroup>
+              <optgroup label="Comercial">
+                <option value="Galpão">Galpão</option>
+                <option value="Loja">Loja</option>
+                <option value="Ponto Comercial">Ponto Comercial</option>
+                <option value="Prédio">Prédio</option>
+                <option value="Sala">Sala</option>
+              </optgroup>
+              <optgroup label="Rural">
+                <option value="Chácara">Chácara</option>
+                <option value="Fazenda">Fazenda</option>
+                <option value="Rancho">Rancho</option>
+                <option value="Sítio">Sítio</option>
+              </optgroup>
+              <optgroup label="Terreno">
+                <option value="Área">Área</option>
+                <option value="Lote">Lote</option>
+                <option value="Terreno">Terreno</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="search-field col-span-full sm:col-span-1">
+            <label for="f-categoria"><i class="fa-solid fa-layer-group"></i> Categoria</label>
+            <select id="f-categoria">
+              <option value="">Qualquer categoria</option>
+              <option value="Residencial">Residencial</option>
               <option value="Comercial">Comercial</option>
-              <option value="Galpão">Galpão</option>
-              <option value="Kitnet">Kitnet</option>
-              <option value="Lote">Lote</option>
-              <option value="Ponto/Casa">Ponto/Casa</option>
-              <option value="Espaço">Espaço</option>
-              <option value="Área">Área</option>
-              <option value="Fazenda">Fazenda</option>
-              <option value="Cobertura">Cobertura</option>
-              <option value="Imóvel">Imóvel</option>
+              <option value="Rural">Rural</option>
+              <option value="Terreno">Terreno</option>
+            </select>
+          </div>
+          <div class="search-field col-span-full sm:col-span-1">
+            <label for="f-bairro"><i class="fa-solid fa-map-pin"></i> Bairro</label>
+            <select id="f-bairro">
+              <option value="">Todos os bairros</option>
             </select>
           </div>
           <div class="search-field col-span-full sm:col-span-1">
@@ -449,8 +478,11 @@
     </div>
   </div>
 
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/favoritos.js"></script>
   <script src="js/imoveis.js"></script>
+  <script src="js/imoveis-api.js"></script>
   <script src="js/header.js"></script>
   <script src="js/main.js"></script>
 </body>

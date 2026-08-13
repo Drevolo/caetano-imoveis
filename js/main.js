@@ -15,6 +15,8 @@
     status: 'Aluguel',
     busca: '',
     tipo: '',
+    categoria: '',
+    bairro: '',
     local: '',
     precoMin: 0,
     precoMax: Infinity,
@@ -31,13 +33,16 @@
   /* ============ FILTROS ============ */
   function filtrar() {
     return IMOVEIS.filter(imovel => {
+      if (imovel.disponivel === false) return false;
       if (state.status && imovel.status !== state.status) return false;
       if (state.busca) {
         const q = state.busca.toLowerCase();
-        const alvo = (imovel.titulo + ' ' + imovel.tipo + ' ' + imovel.localizacao + ' ' + imovel.cidade).toLowerCase();
+        const alvo = (imovel.titulo + ' ' + imovel.tipo + ' ' + imovel.localizacao + ' ' + imovel.cidade + ' ' + (imovel.bairro || '')).toLowerCase();
         if (!alvo.includes(q)) return false;
       }
       if (state.tipo && imovel.tipo !== state.tipo) return false;
+      if (state.categoria && imovel.categoria !== state.categoria) return false;
+      if (state.bairro && imovel.bairro !== state.bairro) return false;
       if (state.local && imovel.cidade !== state.local) return false;
       if (imovel.preco < state.precoMin) return false;
       if (imovel.preco > state.precoMax) return false;
@@ -66,7 +71,7 @@
     return `
       <article class="property-card" data-id="${imovel.id}">
         <div class="property-thumb">
-          <img src="${imovel.imagem}" alt="${imovel.titulo}" loading="lazy" onerror="this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'" />
+          <img src="${otimizarImagem(imovel.imagem, 640)}" alt="${imovel.titulo}" loading="lazy" onerror="this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'" />
           <div class="property-badges">
             <span class="badge">${imovel.status}</span>
           </div>
@@ -82,9 +87,10 @@
         <div class="property-body">
           <div class="property-price"><small>R$</small> ${price}${imovel.status === 'Aluguel' ? '<small> /mês</small>' : ''}</div>
           <h3 class="property-title">${imovel.titulo}</h3>
-          <div class="property-location"><i class="fa-solid fa-location-dot"></i>${imovel.localizacao} - ${imovel.cidade}</div>
+          <div class="property-location"><i class="fa-solid fa-location-dot"></i>${imovel.localizacao}${imovel.bairro ? ', ' + imovel.bairro : ''} - ${imovel.cidade}</div>
           <div class="property-amenities">
             ${imovel.quartos ? `<span><i class="fa-solid fa-bed"></i> ${imovel.quartos}</span>` : ''}
+            ${imovel.suites ? `<span><i class="fa-solid fa-door-open"></i> ${imovel.suites}</span>` : ''}
             ${imovel.banheiros ? `<span><i class="fa-solid fa-bath"></i> ${imovel.banheiros}</span>` : ''}
             ${imovel.garagem ? `<span><i class="fa-solid fa-car"></i> ${imovel.garagem}</span>` : ''}
             ${imovel.area ? `<span><i class="fa-solid fa-ruler-combined"></i> ${imovel.area} m²</span>` : ''}
@@ -114,6 +120,8 @@
     if (state.status) ativos.push(state.status);
     if (state.busca) ativos.push(`"${state.busca}"`);
     if (state.tipo) ativos.push(state.tipo);
+    if (state.categoria) ativos.push(state.categoria);
+    if (state.bairro) ativos.push(state.bairro);
     if (state.local) ativos.push(state.local);
     if (state.precoMin) ativos.push(`≥ R$ ${state.precoMin}`);
     if (Number.isFinite(state.precoMax)) ativos.push(`≤ R$ ${state.precoMax}`);
@@ -269,6 +277,8 @@
   function applySearch() {
     state.busca = $('#f-busca').value.trim();
     state.tipo = $('#f-tipo').value;
+    state.categoria = $('#f-categoria').value;
+    state.bairro = $('#f-bairro').value;
     state.local = $('#f-local').value;
     state.quartos = Number($('#f-quartos').value) || 0;
     state.precoMin = Number($('#f-preco-min').value) || 0;
@@ -288,11 +298,13 @@
   function resetFilters() {
     $('#f-busca').value = '';
     $('#f-tipo').value = '';
+    $('#f-categoria').value = '';
+    $('#f-bairro').value = '';
     $('#f-local').value = '';
     $('#f-quartos').value = '0';
     $('#f-preco-min').value = '';
     $('#f-preco-max').value = '';
-    state.busca = ''; state.tipo = ''; state.local = '';
+    state.busca = ''; state.tipo = ''; state.categoria = ''; state.bairro = ''; state.local = '';
     state.precoMin = 0; state.precoMax = Infinity; state.quartos = 0;
     state.pagina = 1;
     render();
@@ -345,6 +357,18 @@
       render();
     });
   });
+
+  /* ============ BAIRROS (dinâmico) ============ */
+  function populateBairros() {
+    const sel = $('#f-bairro');
+    if (!sel) return;
+    const atual = sel.value;
+    const bairros = Array.from(new Set(IMOVEIS.map(i => (i.bairro || '').trim()).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    sel.innerHTML = '<option value="">Todos os bairros</option>' +
+      bairros.map(b => `<option value="${b}">${b}</option>`).join('');
+    if (atual) sel.value = atual;
+  }
 
   /* ============ NAVEGAÇÃO / SCROLL ============ */
   function scrollToImoveis() {
@@ -441,5 +465,8 @@
     if (e.key === 'Escape') closeModal();
   });
 
-  render();
+  carregarImoveis().then(function () {
+    populateBairros();
+    render();
+  });
 })();

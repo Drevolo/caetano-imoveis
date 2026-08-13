@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin | Caetano Imóveis</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="icon" href="images/favicon/cropped-logomarca-32x32.png" sizes="32x32" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { corePlugins: { preflight: false } };
+  </script>
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+    .admin-header {
+      background: var(--blue-dark); color: #fff;
+      padding: 14px 0; position: sticky; top: 0; z-index: 40;
+      box-shadow: var(--shadow);
+    }
+    .admin-header .container { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .admin-header h1 { font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
+    .admin-header h1 i { color: var(--gold); }
+    .admin-header a, .admin-header button { color: #fff !important; background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2) !important; }
+    .admin-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); margin: 28px 0;
+    }
+    .admin-card h2 { margin: 0 0 6px; font-size: 1.3rem; }
+    .admin-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 22px 0; }
+    .admin-toolbar .btn { margin: 0; }
+    .admin-msg {
+      padding: 10px 14px; border-radius: var(--radius); margin: 10px 0;
+      display: none; font-size: 0.95rem;
+    }
+    .admin-msg.show { display: block; }
+    .admin-msg.ok { background: #e7f5e8; color: #1d6b2c; border: 1px solid #b7e0bd; }
+    .admin-msg.err { background: #fdecea; color: #a12626; border: 1px solid #f3c0bc; }
+    .admin-msg.info { background: #eaf3fb; color: #1d5d8f; border: 1px solid #bcd9ef; }
+
+    .admin-list { margin-top: 8px; }
+    .al-item {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 12px; margin-bottom: 10px;
+    }
+    .al-item img { width: 72px; height: 52px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+    .al-info { flex: 1; min-width: 0; }
+    .al-info h4 { margin: 0 0 2px; font-size: 0.98rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .al-info p { margin: 0; font-size: 0.82rem; color: #6b7274; }
+    .al-badge { font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+    .al-badge.on { background: #e7f5e8; color: #1d6b2c; }
+    .al-badge.off { background: #fdecea; color: #a12626; }
+    .al-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .al-actions button { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; cursor: pointer; color: var(--blue-dark); font-size: 0.85rem; }
+    .al-actions button.del { color: #a12626; }
+    .al-actions button:hover { background: var(--bg); }
+
+    .admin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+    .admin-form .field { display: flex; flex-direction: column; gap: 5px; }
+    .admin-form .field.full { grid-column: 1 / -1; }
+    .admin-form label { font-size: 0.85rem; font-weight: 500; color: #3d4345; }
+    .admin-form label i { color: var(--gold); }
+    .admin-form input, .admin-form select, .admin-form textarea {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 9px 11px; font-size: 0.95rem; background: #fff; color: var(--text); width: 100%;
+    }
+    .admin-form textarea { min-height: 90px; resize: vertical; }
+    .admin-form .checks { display: flex; gap: 22px; flex-wrap: wrap; grid-column: 1 / -1; }
+    .admin-form .checks label { display: flex; align-items: center; gap: 7px; font-weight: 400; cursor: pointer; }
+    .admin-form .checks input { width: auto; }
+
+    .af-fotos { grid-column: 1 / -1; }
+    .af-fotos .foto-thumbs { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .af-fotos .foto-thumb { position: relative; width: 96px; height: 70px; }
+    .af-fotos .foto-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
+    .af-fotos .foto-thumb button {
+      position: absolute; top: -8px; right: -8px; width: 22px; height: 22px;
+      background: #a12626; color: #fff; border: none; border-radius: 50%; cursor: pointer; font-size: 0.7rem; line-height: 1;
+    }
+
+    .admin-preview { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 16px; }
+    .admin-form-actions { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
+
+    @media (max-width: 768px) {
+      .admin-form { grid-template-columns: 1fr; }
+      .admin-form .field.full, .admin-form .checks, .admin-form .af-fotos, .admin-form .admin-preview, .admin-form .admin-form-actions { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="admin-header">
+    <div class="container">
+      <h1><i class="fa-solid fa-shield-halved"></i> Painel Admin</h1>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="btn"><i class="fa-solid fa-globe"></i> Ver site</a>
+        <button id="admin-logout" class="btn" style="display:none"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ===== LOGIN ===== -->
+    <section id="admin-login" class="admin-card" style="max-width:440px;margin:70px auto;">
+      <h2><i class="fa-solid fa-lock"></i> Acesso restrito</h2>
+      <p style="color:#6b7274;margin-bottom:18px;">Entre com o e-mail e senha do administrador para gerenciar os imóveis.</p>
+      <form id="login-form" class="admin-form" style="grid-template-columns:1fr;">
+        <div class="field full">
+          <label for="login-email"><i class="fa-solid fa-envelope"></i> E-mail</label>
+          <input type="email" id="login-email" autocomplete="username" required />
+        </div>
+        <div class="field full">
+          <label for="login-password"><i class="fa-solid fa-key"></i> Senha</label>
+          <input type="password" id="login-password" autocomplete="current-password" required />
+        </div>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn btn-search"><i class="fa-solid fa-right-to-bracket"></i> Entrar</button>
+        </div>
+      </form>
+      <div class="admin-msg" id="login-msg"></div>
+    </section>
+
+    <!-- ===== PAINEL ===== -->
+    <section id="admin-panel" style="display:none;">
+      <div class="admin-toolbar">
+        <button id="btn-novo" class="btn btn-gold"><i class="fa-solid fa-plus"></i> Novo imóvel</button>
+        <button id="btn-importar" class="btn"><i class="fa-solid fa-database"></i> Importar base local</button>
+        <button id="btn-migrar" class="btn"><i class="fa-solid fa-cloud-arrow-up"></i> Migrar fotos p/ Cloudinary</button>
+        <input type="text" id="admin-busca" placeholder="Buscar por título..." style="margin-left:auto;border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;min-width:220px;" />
+      </div>
+      <div class="admin-msg" id="admin-msg"></div>
+      <div id="admin-list" class="admin-list"></div>
+    </section>
+
+    <!-- ===== FORMULÁRIO ===== -->
+    <section id="admin-form" style="display:none;">
+      <div class="admin-card">
+        <h2 id="form-title"><i class="fa-solid fa-pen-to-square"></i> Novo imóvel</h2>
+        <form id="imovel-form" class="admin-form">
+          <div class="field full">
+            <label for="f-titulo"><i class="fa-solid fa-heading"></i> Título *</label>
+            <input type="text" id="f-titulo" placeholder="Ex.: Aluguel – Casa" required />
+          </div>
+          <div class="field">
+            <label for="f-referencia"><i class="fa-solid fa-hashtag"></i> Referência</label>
+            <input type="text" id="f-referencia" placeholder="Ex.: CI-088" />
+          </div>
+          <div class="field">
+            <label for="f-status"><i class="fa-solid fa-tag"></i> Finalidade *</label>
+            <select id="f-status">
+              <option value="Aluguel">Aluguel</option>
+              <option value="Venda">Venda</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-categoria"><i class="fa-solid fa-layer-group"></i> Categoria *</label>
+            <select id="f-categoria">
+              <option value="">Selecione...</option>
+              <option value="Residencial">Residencial</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Rural">Rural</option>
+              <option value="Terreno">Terreno</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-tipo"><i class="fa-solid fa-building"></i> Tipo *</label>
+            <select id="f-tipo" required><option value="">Escolha uma categoria primeiro</option></select>
+          </div>
+          <div class="field">
+            <label for="f-cidade"><i class="fa-solid fa-city"></i> Cidade *</label>
+            <input type="text" id="f-cidade" list="lista-cidades" value="Goianésia" required />
+            <datalist id="lista-cidades">
+              <option value="Goianésia"></option>
+              <option value="Uruaçu"></option>
+              <option value="Souzalândia"></option>
+              <option value="Barro Alto"></option>
+              <option value="Cirilândia"></option>
+              <option value="Padre Bernardo"></option>
+              <option value="Artulândia"></option>
+              <option value="Porangatu"></option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="f-bairro"><i class="fa-solid fa-map-pin"></i> Bairro</label>
+            <input type="text" id="f-bairro" placeholder="Ex.: Centro" />
+          </div>
+          <div class="field full">
+            <label for="f-localizacao"><i class="fa-solid fa-location-dot"></i> Localização / endereço</label>
+            <input type="text" id="f-localizacao" placeholder="Ex.: Rua 12, nº 281" />
+          </div>
+          <div class="field">
+            <label for="f-preco"><i class="fa-solid fa-tags"></i> Preço (R$) *</label>
+            <input type="number" id="f-preco" min="0" step="0.01" required />
+          </div>
+          <div class="field">
+            <label for="f-condominio"><i class="fa-solid fa-building-columns"></i> Condomínio (R$)</label>
+            <input type="number" id="f-condominio" min="0" step="0.01" />
+          </div>
+          <div class="field">
+            <label for="f-iptu"><i class="fa-solid fa-file-invoice-dollar"></i> IPTU (R$)</label>
+            <input type="number" id="f-iptu" min="0" step="0.01" />
+          </div>
+          <div class="field">
+            <label for="f-area"><i class="fa-solid fa-ruler-combined"></i> Área (m²)</label>
+            <input type="number" id="f-area" min="0" />
+          </div>
+          <div class="field">
+            <label for="f-quartos"><i class="fa-solid fa-bed"></i> Quartos</label>
+            <input type="number" id="f-quartos" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="f-suites"><i class="fa-solid fa-door-open"></i> Suítes</label>
+            <input type="number" id="f-suites" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="f-banheiros"><i class="fa-solid fa-bath"></i> Banheiros</label>
+            <input type="number" id="f-banheiros" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="f-garagem"><i class="fa-solid fa-car"></i> Vagas de garagem</label>
+            <input type="number" id="f-garagem" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="f-data"><i class="fa-solid fa-calendar-days"></i> Data de publicação</label>
+            <input type="date" id="f-data" />
+          </div>
+          <div class="checks">
+            <label><input type="checkbox" id="f-mobiliado" /> <i class="fa-solid fa-couch"></i> Mobiliado</label>
+            <label><input type="checkbox" id="f-destaque" /> <i class="fa-solid fa-star"></i> Destaque</label>
+            <label><input type="checkbox" id="f-disponivel" checked /> <i class="fa-solid fa-circle-check"></i> Disponível no site</label>
+          </div>
+          <div class="field full">
+            <label for="f-descricao"><i class="fa-solid fa-align-left"></i> Descrição *</label>
+            <textarea id="f-descricao" required></textarea>
+          </div>
+
+          <div class="field af-fotos">
+            <label><i class="fa-solid fa-images"></i> Fotos (envie quantas quiser)</label>
+            <input type="file" id="f-fotos" accept="image/*" multiple />
+            <div class="foto-thumbs" id="foto-thumbs"></div>
+          </div>
+
+          <div class="admin-preview">
+            <label style="font-weight:700;margin-bottom:8px;display:block;"><i class="fa-solid fa-eye"></i> Prévia do card</label>
+            <div id="admin-preview-card" style="max-width:420px;"></div>
+          </div>
+
+          <div class="admin-form-actions">
+            <button type="submit" class="btn btn-search" id="btn-salvar"><i class="fa-solid fa-floppy-disk"></i> Salvar / Publicar</button>
+            <button type="button" class="btn" id="btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/imoveis.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
