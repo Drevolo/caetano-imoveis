@@ -13,79 +13,43 @@
   const WA_PHONE = '5562985070819';
 
   /* ============ FOTOS (com fallback para a capa) ============ */
-  function fotosDe(item) {
-    const arr = Array.isArray(item.fotos) ? item.fotos.filter(Boolean) : [];
-    return arr.length ? arr : [item.imagem];
-  }
-
   const ERR_HERO = "this.onerror=null;this.src='https://via.placeholder.com/1200x520/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
   const ERR_THUMB = "this.onerror=null;this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'";
-  const ERR_CARD = "this.onerror=null;this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
 
   /* ============ CARROSSEL DOS CARDS (relacionados) ============ */
-  function cardThumb(item) {
-    const fotos = fotosDe(item).map(u => otimizarImagem(u, 640));
-    if (fotos.length === 1) {
-      return `<img src="${fotos[0]}" alt="${item.titulo}" loading="lazy" onerror="${ERR_CARD}" />`;
-    }
-    const slides = fotos.map((u, i) =>
-      `<img class="prop-slide${i === 0 ? ' active' : ''}" src="${u}" alt="${item.titulo} - Foto ${i + 1}" loading="lazy" onerror="${ERR_CARD}" data-index="${i}" />`
-    ).join('');
-    return `
-      <div class="prop-carousel" data-total="${fotos.length}">
-        <div class="prop-slides">${slides}</div>
-        <button class="carousel-prev" data-carousel="prev" aria-label="Foto anterior"><i class="fa-solid fa-chevron-left"></i></button>
-        <button class="carousel-next" data-carousel="next" aria-label="Próxima foto"><i class="fa-solid fa-chevron-right"></i></button>
-        <span class="carousel-count">1/${fotos.length}</span>
-      </div>`;
-  }
-
-  function showCardSlide(container, idx) {
-    const slides = container.querySelectorAll('.prop-slide');
-    if (!slides.length) return;
-    const total = slides.length;
-    idx = ((idx % total) + total) % total;
-    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
-    const count = container.querySelector('.carousel-count');
-    if (count) count.textContent = (idx + 1) + '/' + total;
-    container.dataset.index = idx;
-  }
-
-  let relCarouselPaused = false;
-  function avancarRelacionados() {
-    if (relCarouselPaused) return;
-    const box = $('#pd-related');
-    if (box) $$('.prop-carousel', box).forEach(c => showCardSlide(c, Number(c.dataset.index || 0) + 1));
-  }
-  setInterval(avancarRelacionados, 3500);
+  const relCarouselPaused = { current: false };
+  Cards.autoAdvance('#pd-related', relCarouselPaused);
 
   function iniciarCarrosselRelacionados() {
     const box = $('#pd-related');
-    if (!box) return;
-    $$('.prop-carousel', box).forEach(c => {
-      c.dataset.index = 0;
-      c.addEventListener('mouseenter', () => { relCarouselPaused = true; });
-      c.addEventListener('mouseleave', () => { relCarouselPaused = false; });
-    });
+    if (box) Cards.setupCarousels(box, relCarouselPaused);
+  }
+
+  function thumbHTML(item, m, i) {
+    if (m.tipo === 'video') {
+      return `<button class="pd-gallery-thumb${i === 0 ? ' active' : ''}" data-thumb="${i}" aria-label="Vídeo ${i + 1}">
+        <span class="pd-thumb-video"><i class="fa-solid fa-play"></i></span>
+      </button>`;
+    }
+    return `<button class="pd-gallery-thumb${i === 0 ? ' active' : ''}" data-thumb="${i}" aria-label="Foto ${i + 1}">
+      <img src="${otimizarImagem(m.url, 200)}" alt="${escapeHtml(item.titulo)} - Foto ${i + 1}" loading="lazy" onerror="${ERR_THUMB}" />
+    </button>`;
   }
 
   function galeriaHTML(item) {
-    const gal = fotosDe(item);
-    const main = `<img class="pd-gallery-img active" id="pd-gallery-img" src="${otimizarImagem(gal[0], 1280)}" alt="${item.titulo}" onerror="${ERR_HERO}" />`;
-    if (gal.length === 1) return `<div class="pd-gallery"><div class="pd-gallery-main">${main}</div></div>`;
+    const midia = Cards.mediaDe(item);
+    const main = `<div class="pd-gallery-stage" id="pd-gallery-stage"></div>`;
+    if (midia.length === 1) return `<div class="pd-gallery"><div class="pd-gallery-main">${main}</div></div>`;
     return `
       <div class="pd-gallery">
         <div class="pd-gallery-main" id="pd-gallery-main">
           ${main}
-          <button class="pd-gallery-prev" id="pd-gallery-prev" aria-label="Foto anterior"><i class="fa-solid fa-chevron-left"></i></button>
-          <button class="pd-gallery-next" id="pd-gallery-next" aria-label="Próxima foto"><i class="fa-solid fa-chevron-right"></i></button>
-          <span class="pd-gallery-count" id="pd-gallery-count">1 / ${gal.length}</span>
+          <button class="pd-gallery-prev" id="pd-gallery-prev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="pd-gallery-next" id="pd-gallery-next" aria-label="Próxima"><i class="fa-solid fa-chevron-right"></i></button>
+          <span class="pd-gallery-count" id="pd-gallery-count">1 / ${midia.length}</span>
         </div>
         <div class="pd-gallery-thumbs" id="pd-gallery-thumbs">
-          ${gal.map((u, i) =>
-            `<button class="pd-gallery-thumb${i === 0 ? ' active' : ''}" data-thumb="${i}" aria-label="Foto ${i + 1}">
-              <img src="${otimizarImagem(u, 200)}" alt="${item.titulo} - Foto ${i + 1}" loading="lazy" onerror="${ERR_THUMB}" />
-            </button>`).join('')}
+          ${midia.map((m, i) => thumbHTML(item, m, i)).join('')}
         </div>
       </div>`;
   }
@@ -144,22 +108,22 @@
       <nav class="breadcrumb container">
         <a href="index.html">Home</a>
         <i class="fa-solid fa-angle-right"></i>
-        <a href="index.html#imoveis">${imovel.status}</a>
+        <a href="index.html#imoveis">${escapeHtml(imovel.status)}</a>
         <i class="fa-solid fa-angle-right"></i>
-        <span>${imovel.titulo}</span>
+        <span>${escapeHtml(imovel.titulo)}</span>
       </nav>
 
       <div class="container pd-hero">
         ${galeriaHTML(imovel)}
-        <span class="badge">${imovel.status}</span>
+        <span class="badge">${escapeHtml(imovel.status)}</span>
       </div>
 
       <div class="container pd-grid">
         <div class="pd-main">
           <div class="pd-head">
             <div class="pd-price"><small>R$</small> ${price}${imovel.status === 'Aluguel' ? '<small> /mês</small>' : ''}</div>
-            <h1>${imovel.titulo}</h1>
-            <div class="pd-location"><i class="fa-solid fa-location-dot"></i> ${imovel.localizacao}${imovel.bairro ? ', ' + imovel.bairro : ''} - ${imovel.cidade}</div>
+            <h1>${escapeHtml(imovel.titulo)}</h1>
+            <div class="pd-location"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(imovel.localizacao)}${imovel.bairro ? ', ' + escapeHtml(imovel.bairro) : ''} - ${escapeHtml(imovel.cidade)}</div>
           </div>
 
           <div class="pd-amenities">
@@ -173,25 +137,25 @@
 
           <div class="pd-box">
             <h2>Sobre este imóvel</h2>
-            <p class="pd-desc">${imovel.descricao}</p>
+            <p class="pd-desc">${escapeHtml(imovel.descricao)}</p>
             <ul class="pd-facts">
-              <li><span>Categoria:</span> ${imovel.categoria || '-'}</li>
-              <li><span>Tipo de imóvel:</span> ${imovel.tipo}</li>
-              <li><span>Finalidade:</span> ${imovel.status}</li>
-              <li><span>Cidade:</span> ${imovel.cidade}</li>
-              <li><span>Bairro:</span> ${imovel.bairro || '-'}</li>
-              <li><span>Localização:</span> ${imovel.localizacao || '-'}</li>
+              <li><span>Categoria:</span> ${escapeHtml(imovel.categoria || '-')}</li>
+              <li><span>Tipo de imóvel:</span> ${escapeHtml(imovel.tipo)}</li>
+              <li><span>Finalidade:</span> ${escapeHtml(imovel.status)}</li>
+              <li><span>Cidade:</span> ${escapeHtml(imovel.cidade)}</li>
+              <li><span>Bairro:</span> ${escapeHtml(imovel.bairro || '-')}</li>
+              <li><span>Localização:</span> ${escapeHtml(imovel.localizacao || '-')}</li>
               ${imovel.condominio ? `<li><span>Condomínio:</span> R$ ${precoFormatado(imovel.condominio)}</li>` : ''}
               ${imovel.iptu ? `<li><span>IPTU:</span> R$ ${precoFormatado(imovel.iptu)}</li>` : ''}
-              <li><span>Referência:</span> ${imovel.referencia || '#' + imovel.id}</li>
+              <li><span>Referência:</span> ${escapeHtml(imovel.referencia || '#' + imovel.id)}</li>
             </ul>
           </div>
 
           <div class="pd-box">
             <h2>Localização</h2>
-            <p class="pd-desc">${imovel.localizacao}${imovel.bairro ? ', ' + imovel.bairro : ''} - ${imovel.cidade}</p>
+            <p class="pd-desc">${escapeHtml(imovel.localizacao)}${imovel.bairro ? ', ' + escapeHtml(imovel.bairro) : ''} - ${escapeHtml(imovel.cidade)}</p>
             <div class="pd-map">
-              <iframe src="${mapsEmbedUrl}" title="Mapa de ${imovel.titulo}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <iframe src="${mapsEmbedUrl}" title="Mapa de ${escapeHtml(imovel.titulo)}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
             <p class="pd-map-link">
               <a href="${mapsUrl}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir no Google Maps</a>
@@ -223,25 +187,46 @@
     `;
 
     /* ============ GALERIA ============ */
-    const galFotos = fotosDe(imovel);
-    const galMain = $('#pd-gallery-img');
+    const galMidia = Cards.mediaDe(imovel);
+    const galFotos = Cards.fotosDe(imovel);
+    const galMain = $('#pd-gallery-stage');
     const galCount = $('#pd-gallery-count');
     let galIdx = 0;
     let galTimer = null;
 
     function showGallery(idx) {
-      const n = galFotos.length;
+      const n = galMidia.length;
       if (!n || !galMain) return;
       galIdx = ((idx % n) + n) % n;
-      galMain.src = otimizarImagem(galFotos[galIdx], 1280);
-      galMain.classList.add('active');
+      const m = galMidia[galIdx];
+      galMain.innerHTML = '';
+      let el;
+      if (m.tipo === 'video') {
+        el = document.createElement('video');
+        el.className = 'pd-gallery-video';
+        el.controls = true;
+        el.playsInline = true;
+        el.preload = 'none';
+        el.src = (typeof otimizarVideo === 'function') ? otimizarVideo(m.url, 1280) : m.url;
+        if (galFotos[0]) el.poster = otimizarImagem(galFotos[0], 1280);
+      } else {
+        el = document.createElement('img');
+        el.className = 'pd-gallery-img active';
+        el.alt = (imovel.titulo || '') + ' - Foto ' + (galIdx + 1);
+        el.setAttribute('onerror', ERR_HERO);
+        el.src = otimizarImagem(m.url, 1280);
+      }
+      galMain.appendChild(el);
       if (galCount) galCount.textContent = (galIdx + 1) + ' / ' + n;
       $$('.pd-gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === galIdx));
     }
 
     function startGalTimer() {
       stopGalTimer();
-      galTimer = setInterval(() => showGallery(galIdx + 1), 4000);
+      galTimer = setInterval(() => {
+        if (galMidia[galIdx] && galMidia[galIdx].tipo === 'video') return;
+        showGallery(galIdx + 1);
+      }, 4000);
     }
     function stopGalTimer() {
       if (galTimer) { clearInterval(galTimer); galTimer = null; }
@@ -253,7 +238,8 @@
     if (nextBtn) nextBtn.addEventListener('click', () => { showGallery(galIdx + 1); startGalTimer(); });
 
     if (galMain) galMain.addEventListener('click', () => {
-      if (window.Lightbox) Lightbox.open(galFotos, galIdx, imovel.titulo);
+      if (galMidia[galIdx] && galMidia[galIdx].tipo === 'video') return;
+      if (window.Lightbox) Lightbox.open(galMidia, galIdx, imovel.titulo);
     });
 
     $$('.pd-gallery-thumb').forEach(t => {
@@ -261,7 +247,8 @@
         const i = Number(t.dataset.thumb);
         showGallery(i);
         startGalTimer();
-        if (window.Lightbox) Lightbox.open(galFotos, i, imovel.titulo);
+        if (galMidia[i] && galMidia[i].tipo === 'video') return;
+        if (window.Lightbox) Lightbox.open(galMidia, i, imovel.titulo);
       });
     });
 
@@ -272,7 +259,8 @@
         holder.addEventListener('mouseleave', startGalTimer);
       }
     }
-    if (galFotos.length > 1) startGalTimer();
+    showGallery(0);
+    if (galMidia.length > 1) startGalTimer();
 
     /* ============ FAVORITAR ============ */
     const favBtn = $('#pd-fav-btn');
@@ -291,38 +279,6 @@
       });
     }
 
-    /* ============ CARD (reuso) ============ */
-    function cardHTML(item, isFav) {
-      const p = precoFormatado(item.preco);
-      return `
-        <article class="property-card" data-id="${item.id}">
-          <div class="property-thumb">
-            ${cardThumb(item)}
-            <div class="property-badges">
-              <span class="badge">${item.status}</span>
-            </div>
-            <div class="property-tools">
-              <button class="prop-tool ${isFav ? 'favorited' : ''}" data-action="fav" title="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
-                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-              </button>
-            </div>
-          </div>
-          <div class="property-body">
-            <div class="property-price"><small>R$</small> ${p}${item.status === 'Aluguel' ? '<small> /mês</small>' : ''}</div>
-            <h3 class="property-title">${item.titulo}</h3>
-            <div class="property-location"><i class="fa-solid fa-location-dot"></i>${item.localizacao}${item.bairro ? ', ' + item.bairro : ''} - ${item.cidade}</div>
-            <div class="property-amenities">
-              ${item.quartos ? `<span><i class="fa-solid fa-bed"></i> ${item.quartos}</span>` : ''}
-              ${item.suites ? `<span><i class="fa-solid fa-door-open"></i> ${item.suites}</span>` : ''}
-              ${item.banheiros ? `<span><i class="fa-solid fa-bath"></i> ${item.banheiros}</span>` : ''}
-              ${item.garagem ? `<span><i class="fa-solid fa-car"></i> ${item.garagem}</span>` : ''}
-              ${item.area ? `<span><i class="fa-solid fa-ruler-combined"></i> ${item.area} m²</span>` : ''}
-            </div>
-          </div>
-        </article>
-      `;
-    }
-
     /* ============ RELACIONADOS ============ */
     function renderRelated() {
       const box = $('#pd-related');
@@ -338,7 +294,7 @@
         if (sec) sec.style.display = 'none';
         return;
       }
-      box.innerHTML = rel.map(i => cardHTML(i, Favoritos.read().includes(i.id))).join('');
+      box.innerHTML = rel.map(i => Cards.cardHTML(i, Favoritos.read().includes(i.id))).join('');
       iniciarCarrosselRelacionados();
     }
     renderRelated();
@@ -350,7 +306,7 @@
         if (arrow) {
           const container = arrow.closest('.prop-carousel');
           const dir = arrow.dataset.carousel === 'next' ? 1 : -1;
-          showCardSlide(container, Number(container.dataset.index || 0) + dir);
+          Cards.showSlide(container, Number(container.dataset.index || 0) + dir);
           return;
         }
         const card = e.target.closest('.property-card');
@@ -369,7 +325,7 @@
           if (rel) {
             const active = card.querySelector('.prop-slide.active');
             const start = active ? Number(active.dataset.index) : 0;
-            Lightbox.open(fotosDe(rel), start, rel.titulo);
+            Lightbox.open(Cards.fotosDe(rel), start, rel.titulo);
             return;
           }
         }
@@ -399,10 +355,10 @@
           <h3>Meus Favoritos (${favs.length})</h3>
           ${favs.map(i => `
             <div class="fav-item">
-              <img src="${otimizarImagem(i.imagem, 320)}" alt="${i.titulo}" onerror="this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'" />
+              <img src="${otimizarImagem(i.imagem, 320)}" alt="${escapeHtml(i.titulo)}" onerror="this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'" />
               <div class="fav-item-info">
-                <h4><a href="imovel.html?id=${i.id}">${i.titulo}</a></h4>
-                <div class="fav-loc"><i class="fa-solid fa-location-dot"></i> ${i.localizacao}</div>
+                <h4><a href="imovel.html?id=${i.id}">${escapeHtml(i.titulo)}</a></h4>
+                <div class="fav-loc"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(i.localizacao)}</div>
                 <div class="fav-price">R$ ${precoFormatado(i.preco)}${i.status === 'Aluguel' ? '/mês' : ''}</div>
               </div>
               <button class="fav-remove" data-remove-fav="${i.id}" title="Remover"><i class="fa-solid fa-trash"></i></button>

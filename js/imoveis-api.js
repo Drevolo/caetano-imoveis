@@ -1,8 +1,39 @@
 (function () {
   'use strict';
 
+  var migradasCache = null;
+
   function dadosLocais() {
     return Array.isArray(window.IMOVEIS) ? window.IMOVEIS : [];
+  }
+
+  async function carregarMigradas() {
+    if (migradasCache) return migradasCache;
+    const res = await fetch('js/fotos-migradas.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    migradasCache = await res.json();
+    return migradasCache;
+  }
+
+  // Fallback offline: aplica as galerias migradas (Cloudinary) sobre a base local,
+  // para o site continuar exibindo todas as fotos mesmo sem o banco.
+  async function dadosLocaisComFotos() {
+    const lista = dadosLocais();
+    if (!lista.length) return lista;
+    try {
+      const fotos = await carregarMigradas();
+      const novas = lista.map(function (i) {
+        const f = fotos[i.id];
+        if (Array.isArray(f) && f.length) {
+          return Object.assign({}, i, { imagem: f[0], fotos: f });
+        }
+        return i;
+      });
+      window.IMOVEIS = novas;
+      return novas;
+    } catch (e) {
+      return lista;
+    }
   }
 
   function configOk() {
@@ -21,7 +52,7 @@
 
   async function carregarImoveis() {
     const client = getClient();
-    if (!client) return dadosLocais();
+    if (!client) return dadosLocaisComFotos();
     try {
       const { data, error } = await client
         .from('imoveis')
@@ -33,9 +64,9 @@
         window.IMOVEIS = data;
         return data;
       }
-      return dadosLocais();
+      return dadosLocaisComFotos();
     } catch (e) {
-      return dadosLocais();
+      return dadosLocaisComFotos();
     }
   }
 

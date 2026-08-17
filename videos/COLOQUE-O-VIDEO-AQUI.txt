@@ -1,0 +1,15 @@
+COLOQUE AQUI O VÍDEO PARA SUBIR
+================================
+
+1. Coloque o arquivo do vídeo nesta pasta com o nome:
+     video-01.mp4   (ou .webm / .mov)
+
+2. Depois de publicar no GitHub (git push), abra o admin, edite o imóvel
+   da casa e clique em "Enviar vídeos da pasta /videos".
+
+3. O vídeo é comprimido pelo Cloudinary (MP4 até 1280px) quando é exibido
+   no site, e aparece na galeria do imóvel.
+
+Para mais de um vídeo, use video-02.mp4, video-03.mp4, etc.
+
+Atenção: arquivos acima de 100MB não são aceitos pelo GitHub.

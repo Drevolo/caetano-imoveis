@@ -83,6 +83,15 @@
       position: absolute; top: -8px; right: -8px; width: 22px; height: 22px;
       background: #a12626; color: #fff; border: none; border-radius: 50%; cursor: pointer; font-size: 0.7rem; line-height: 1;
     }
+    .af-fotos .foto-thumb.video-thumb {
+      width: 140px; height: 70px; border: 1px solid var(--border); border-radius: 4px;
+      display: flex; align-items: center; gap: 8px; padding: 0 10px;
+      background: linear-gradient(135deg, #2b3a55, #33445f); color: #fff;
+      font-size: 0.8rem; overflow: hidden; white-space: nowrap;
+    }
+    .af-fotos .foto-thumb.video-thumb i.fa-play { color: var(--gold); }
+    .af-fotos .foto-thumb.video-thumb span { overflow: hidden; text-overflow: ellipsis; }
+    .af-fotos .fotos-hint { font-size: 0.8rem; color: #6b7274; margin-top: 6px; }
 
     .admin-preview { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 16px; }
     .admin-form-actions { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
@@ -246,6 +255,15 @@
             <label><i class="fa-solid fa-images"></i> Fotos (envie quantas quiser)</label>
             <input type="file" id="f-fotos" accept="image/*" multiple />
             <div class="foto-thumbs" id="foto-thumbs"></div>
+            <p class="fotos-hint">As fotos são comprimidas automaticamente no navegador (máx. 1920px, JPEG) antes do upload.</p>
+          </div>
+
+          <div class="field af-fotos">
+            <label><i class="fa-solid fa-video"></i> Vídeos (opcional)</label>
+            <input type="file" id="f-videos" accept="video/*" multiple />
+            <div class="foto-thumbs" id="video-thumbs"></div>
+            <p class="fotos-hint">O Cloudinary comprime o vídeo (MP4 até 1280px) ao ser exibido no site. Vídeos pesados podem levar alguns minutos no upload.</p>
+            <button type="button" class="btn" id="btn-videos-pasta" style="margin-top:8px;"><i class="fa-solid fa-folder-open"></i> Enviar vídeos da pasta /videos</button>
           </div>
 
           <div class="admin-preview">

@@ -17,6 +17,28 @@ function otimizarImagem(url, largura) {
   return url;
 }
 
+// Entrega otimizada de vídeo: MP4 com qualidade automática e largura máxima
+// (o Cloudinary gera a versão comprimida na entrega e guarda em cache).
+function otimizarVideo(url, largura) {
+  if (!url) return "";
+  const cloud = CONFIG.cloudinaryCloud;
+  if (cloud && cloud.indexOf("SEU-CLOUD") === -1 && typeof url === "string" && url.indexOf(cloud) !== -1 && url.indexOf("/video/upload/") !== -1) {
+    if (url.indexOf("/video/upload/f_") !== -1) return url;
+    const trans = "f_mp4,q_auto" + (largura ? ",w_" + largura : "");
+    return url.replace("/video/upload/", "/video/upload/" + trans + "/");
+  }
+  return url;
+}
+
 function precoFormatado(v) {
   return Number(v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function escapeHtml(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

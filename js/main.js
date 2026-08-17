@@ -25,11 +25,6 @@
     favoritos: Favoritos.read()
   };
 
-  /* ============ FORMATAÇÃO ============ */
-  function formatPrice(v) {
-    return v.toLocaleString('pt-BR', { minimumFractionDigits: v % 1 ? 2 : 2, maximumFractionDigits: 2 });
-  }
-
   /* ============ FILTROS ============ */
   function filtrar() {
     return IMOVEIS.filter(imovel => {
@@ -66,83 +61,10 @@
   }
 
   /* ============ CARROSSEL DOS CARDS ============ */
-  const ERR_IMG = "this.onerror=null;this.src='https://via.placeholder.com/584x438/f7f8f9/b28e4a?text=Caetano+Im%C3%B3veis'";
-
-  function fotosDe(imovel) {
-    const arr = Array.isArray(imovel.fotos) ? imovel.fotos.filter(Boolean) : [];
-    return arr.length ? arr : [imovel.imagem];
-  }
-
-  function cardThumb(imovel) {
-    const fotos = fotosDe(imovel).map(u => otimizarImagem(u, 640));
-    if (fotos.length === 1) {
-      return `<img src="${fotos[0]}" alt="${imovel.titulo}" loading="lazy" onerror="${ERR_IMG}" />`;
-    }
-    const slides = fotos.map((u, i) =>
-      `<img class="prop-slide${i === 0 ? ' active' : ''}" src="${u}" alt="${imovel.titulo} - Foto ${i + 1}" loading="lazy" onerror="${ERR_IMG}" data-index="${i}" />`
-    ).join('');
-    return `
-      <div class="prop-carousel" data-total="${fotos.length}">
-        <div class="prop-slides">${slides}</div>
-        <button class="carousel-prev" data-carousel="prev" aria-label="Foto anterior"><i class="fa-solid fa-chevron-left"></i></button>
-        <button class="carousel-next" data-carousel="next" aria-label="Próxima foto"><i class="fa-solid fa-chevron-right"></i></button>
-        <span class="carousel-count">1/${fotos.length}</span>
-      </div>`;
-  }
-
-  function showSlide(container, idx) {
-    const slides = container.querySelectorAll('.prop-slide');
-    if (!slides.length) return;
-    const total = slides.length;
-    idx = ((idx % total) + total) % total;
-    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
-    const count = container.querySelector('.carousel-count');
-    if (count) count.textContent = (idx + 1) + '/' + total;
-    container.dataset.index = idx;
-  }
-
-  let carouselPaused = false;
-  function avancarCarrossel() {
-    if (carouselPaused) return;
-    $$('#listings-grid .prop-carousel').forEach(c => showSlide(c, Number(c.dataset.index || 0) + 1));
-  }
-  setInterval(avancarCarrossel, 3500);
+  const carouselPaused = { current: false };
+  Cards.autoAdvance('#listings-grid', carouselPaused);
 
   /* ============ RENDER ============ */
-  function cardHTML(imovel, isFav) {
-    const price = formatPrice(imovel.preco);
-    return `
-      <article class="property-card" data-id="${imovel.id}">
-        <div class="property-thumb">
-          ${cardThumb(imovel)}
-          <div class="property-badges">
-            <span class="badge">${imovel.status}</span>
-          </div>
-          <div class="property-tools">
-            <button class="prop-tool ${isFav ? 'favorited' : ''}" data-action="fav" title="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
-              <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-            </button>
-            <button class="prop-tool" data-action="view" title="Ver detalhes">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-        </div>
-        <div class="property-body">
-          <div class="property-price"><small>R$</small> ${price}${imovel.status === 'Aluguel' ? '<small> /mês</small>' : ''}</div>
-          <h3 class="property-title">${imovel.titulo}</h3>
-          <div class="property-location"><i class="fa-solid fa-location-dot"></i>${imovel.localizacao}${imovel.bairro ? ', ' + imovel.bairro : ''} - ${imovel.cidade}</div>
-          <div class="property-amenities">
-            ${imovel.quartos ? `<span><i class="fa-solid fa-bed"></i> ${imovel.quartos}</span>` : ''}
-            ${imovel.suites ? `<span><i class="fa-solid fa-door-open"></i> ${imovel.suites}</span>` : ''}
-            ${imovel.banheiros ? `<span><i class="fa-solid fa-bath"></i> ${imovel.banheiros}</span>` : ''}
-            ${imovel.garagem ? `<span><i class="fa-solid fa-car"></i> ${imovel.garagem}</span>` : ''}
-            ${imovel.area ? `<span><i class="fa-solid fa-ruler-combined"></i> ${imovel.area} m²</span>` : ''}
-          </div>
-        </div>
-      </article>
-    `;
-  }
-
   function render() {
     const filtrados = ordenar(filtrar());
     const total = filtrados.length;
@@ -181,13 +103,9 @@
     emptyBox.style.display = 'none';
 
     grid.className = 'listings-grid grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3' + (state.view === 'list' ? ' view-list' : '');
-    grid.innerHTML = pagina.map(i => cardHTML(i, state.favoritos.includes(i.id))).join('');
+    grid.innerHTML = pagina.map(i => Cards.cardHTML(i, state.favoritos.includes(i.id), { viewBtn: true })).join('');
 
-    $$('#listings-grid .prop-carousel').forEach(c => {
-      c.dataset.index = 0;
-      c.addEventListener('mouseenter', () => { carouselPaused = true; });
-      c.addEventListener('mouseleave', () => { carouselPaused = false; });
-    });
+    Cards.setupCarousels(grid, carouselPaused);
 
     renderPaginacao(totalPaginas);
 
@@ -275,11 +193,11 @@
         <h3>Meus Favoritos (${favs.length})</h3>
         ${favs.map(i => `
           <div class="fav-item">
-            <img src="${i.imagem}" alt="${i.titulo}" onerror="this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'" />
+            <img src="${escapeHtml(i.imagem)}" alt="${escapeHtml(i.titulo)}" onerror="this.src='https://via.placeholder.com/120x85/f7f8f9/b28e4a?text=Caetano'" />
             <div class="fav-item-info">
-              <h4><a href="imovel.html?id=${i.id}">${i.titulo}</a></h4>
-              <div class="fav-loc"><i class="fa-solid fa-location-dot"></i> ${i.localizacao}</div>
-              <div class="fav-price">R$ ${formatPrice(i.preco)}${i.status === 'Aluguel' ? '/mês' : ''}</div>
+              <h4><a href="imovel.html?id=${i.id}">${escapeHtml(i.titulo)}</a></h4>
+              <div class="fav-loc"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(i.localizacao)}</div>
+              <div class="fav-price">R$ ${precoFormatado(i.preco)}${i.status === 'Aluguel' ? '/mês' : ''}</div>
             </div>
             <button class="fav-remove" data-remove-fav="${i.id}" title="Remover"><i class="fa-solid fa-trash"></i></button>
           </div>
@@ -300,7 +218,7 @@
     if (arrow) {
       const container = arrow.closest('.prop-carousel');
       const dir = arrow.dataset.carousel === 'next' ? 1 : -1;
-      showSlide(container, Number(container.dataset.index || 0) + dir);
+      Cards.showSlide(container, Number(container.dataset.index || 0) + dir);
       return;
     }
     const card = e.target.closest('.property-card');
@@ -316,7 +234,7 @@
       if (imovel) {
         const active = card.querySelector('.prop-slide.active');
         const start = active ? Number(active.dataset.index) : 0;
-        Lightbox.open(fotosDe(imovel), start, imovel.titulo);
+        Lightbox.open(Cards.fotosDe(imovel), start, imovel.titulo);
         return;
       }
     }

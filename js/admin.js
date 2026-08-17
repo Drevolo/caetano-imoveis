@@ -16,7 +16,8 @@
     imoveis: [],
     editando: null,   // objeto em edição (null = novo)
     editId: null,     // id que será usado (novo = próximo id)
-    fotos: []         // URLs atuais das fotos do formulário
+    fotos: [],        // URLs atuais das fotos do formulário
+    videos: []        // URLs atuais dos vídeos do formulário
   };
 
   let client = null;
@@ -106,10 +107,10 @@
 
     box.innerHTML = lista.map(i => `
       <div class="al-item">
-        <img src="${otimizarImagem(i.imagem, 320)}" alt="${i.titulo}" onerror="this.style.display='none'" />
+        <img src="${escapeHtml(otimizarImagem(i.imagem, 320))}" alt="${escapeHtml(i.titulo)}" onerror="this.style.display='none'" />
         <div class="al-info">
-          <h4>${i.titulo} <span class="al-badge ${i.disponivel === false ? 'off' : 'on'}">${i.disponivel === false ? 'Indisponível' : i.status}</span></h4>
-          <p>#${i.id} · ${i.tipo}${i.bairro ? ' · ' + i.bairro : ''} · ${i.cidade} · R$ ${precoFormatado(i.preco)}${i.status === 'Aluguel' ? '/mês' : ''}</p>
+          <h4>${escapeHtml(i.titulo)} <span class="al-badge ${i.disponivel === false ? 'off' : 'on'}">${i.disponivel === false ? 'Indisponível' : escapeHtml(i.status)}</span></h4>
+          <p>#${i.id} · ${escapeHtml(i.tipo)}${i.bairro ? ' · ' + escapeHtml(i.bairro) : ''} · ${escapeHtml(i.cidade)} · R$ ${precoFormatado(i.preco)}${i.status === 'Aluguel' ? '/mês' : ''}</p>
         </div>
         <div class="al-actions">
           <button data-edit="${i.id}" title="Editar"><i class="fa-solid fa-pen"></i></button>
@@ -132,6 +133,7 @@
     estado.editando = imovel;
     estado.editId = imovel ? imovel.id : proximoId();
     estado.fotos = imovel && Array.isArray(imovel.fotos) ? imovel.fotos.slice() : (imovel && imovel.imagem ? [imovel.imagem] : []);
+    estado.videos = imovel && Array.isArray(imovel.videos) ? imovel.videos.slice() : [];
 
     $('#f-titulo').value = imovel ? imovel.titulo || '' : '';
     $('#f-referencia').value = imovel ? imovel.referencia || '' : (imovel ? '' : 'CI-' + String(estado.editId).padStart(3, '0'));
@@ -156,7 +158,9 @@
     $('#f-disponivel').checked = imovel ? imovel.disponivel !== false : true;
     $('#f-descricao').value = imovel ? imovel.descricao || '' : '';
     $('#f-fotos').value = '';
+    $('#f-videos').value = '';
     renderFotos();
+    renderVideos();
     atualizarPreview();
 
     window.scrollTo({ top: 0 });
@@ -168,6 +172,7 @@
     estado.editando = null;
     estado.editId = null;
     estado.fotos = [];
+    estado.videos = [];
   }
 
   function proximoId() {
@@ -206,14 +211,14 @@
       <article class="property-card">
         <div class="property-thumb">
           ${imovel.imagem
-            ? `<img src="${otimizarImagem(imovel.imagem, 640)}" alt="" style="height:200px;object-fit:cover;width:100%;" />`
+            ? `<img src="${escapeHtml(otimizarImagem(imovel.imagem, 640))}" alt="" style="height:200px;object-fit:cover;width:100%;" />`
             : '<div style="height:200px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;"><i class="fa-solid fa-image"></i> Sem foto</div>'}
-          <div class="property-badges"><span class="badge">${imovel.status}</span></div>
+          <div class="property-badges"><span class="badge">${escapeHtml(imovel.status)}</span></div>
         </div>
         <div class="property-body">
           <div class="property-price"><small>R$</small> ${price}${imovel.status === 'Aluguel' ? '<small> /mês</small>' : ''}</div>
-          <h3 class="property-title">${imovel.titulo}</h3>
-          <div class="property-location"><i class="fa-solid fa-location-dot"></i>${imovel.localizacao}${imovel.bairro ? ', ' + imovel.bairro : ''} - ${imovel.cidade}</div>
+          <h3 class="property-title">${escapeHtml(imovel.titulo)}</h3>
+          <div class="property-location"><i class="fa-solid fa-location-dot"></i>${escapeHtml(imovel.localizacao)}${imovel.bairro ? ', ' + escapeHtml(imovel.bairro) : ''} - ${escapeHtml(imovel.cidade)}</div>
           <div class="property-amenities">
             ${imovel.quartos ? `<span><i class="fa-solid fa-bed"></i> ${imovel.quartos}</span>` : ''}
             ${imovel.suites ? `<span><i class="fa-solid fa-door-open"></i> ${imovel.suites}</span>` : ''}
@@ -241,7 +246,77 @@
     `).join('');
   }
 
+  // Comprime a foto no navegador (máx. 1920px, JPEG ~82%) para reduzir
+  // o upload. Corrige a orientação de fotos de celular via createImageBitmap.
+  async function comprimirImagem(file) {
+    if (file.type === 'image/gif' || (file.size || 0) < 200 * 1024) return file;
+    try {
+      let bmp;
+      try {
+        bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      } catch (e) {
+        bmp = await createImageBitmap(file);
+      }
+      const MAX = 1920;
+      let { width, height } = bmp;
+      if (width > MAX || height > MAX) {
+        const escala = Math.min(MAX / width, MAX / height);
+        width = Math.round(width * escala);
+        height = Math.round(height * escala);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(bmp, 0, 0, width, height);
+      bmp.close();
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.82));
+      if (!blob) return file;
+      return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch (e) {
+      return file;
+    }
+  }
+
   async function enviarFotos(arquivos) {
+    if (!CONFIG.cloudinaryCloud || CONFIG.cloudinaryCloud.indexOf('SEU-CLOUD') !== -1 || !CONFIG.cloudinaryPreset) {
+      throw new Error('Configure o Cloudinary em js/config.js (cloud name e upload preset).');
+    }
+    const urls = [];
+    for (const arquivo of arquivos) {
+      const a = await comprimirImagem(arquivo);
+      const fd = new FormData();
+      fd.append('file', a);
+      fd.append('upload_preset', CONFIG.cloudinaryPreset);
+      fd.append('folder', 'imoveis/' + estado.editId);
+      const res = await fetch('https://api.cloudinary.com/v1_1/' + CONFIG.cloudinaryCloud + '/image/upload', { method: 'POST', body: fd });
+      const j = await res.json();
+      if (j.error) throw new Error(j.error.message || 'Falha no upload da imagem.');
+      urls.push(j.secure_url);
+    }
+    return urls;
+  }
+
+  /* ============ VÍDEOS ============ */
+  function renderVideos() {
+    const box = $('#video-thumbs');
+    if (!estado.videos.length) {
+      box.innerHTML = '<p style="color:#6b7274;font-size:0.85rem;">Nenhum vídeo ainda.</p>';
+      return;
+    }
+    box.innerHTML = estado.videos.map((url, i) => `
+      <div class="foto-thumb video-thumb" title="${escapeHtml(url)}">
+        <i class="fa-solid fa-play"></i><span>Vídeo ${i + 1}</span>
+        <button type="button" data-rem-video="${i}" title="Remover"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    `).join('');
+  }
+
+  // Envia o vídeo para o Cloudinary. Em uploads unsigned o parâmetro
+  // "eager" não é permitido, então salvamos a URL original do vídeo; a
+  // compressão acontece na entrega (f_mp4,q_auto,w_1280 - ver otimizarVideo).
+  // Se o preset estiver configurado com eager transformation, a resposta
+  // traz a versão comprimida em j.eager e ela é usada.
+  async function enviarVideos(arquivos) {
     if (!CONFIG.cloudinaryCloud || CONFIG.cloudinaryCloud.indexOf('SEU-CLOUD') !== -1 || !CONFIG.cloudinaryPreset) {
       throw new Error('Configure o Cloudinary em js/config.js (cloud name e upload preset).');
     }
@@ -251,12 +326,62 @@
       fd.append('file', arquivo);
       fd.append('upload_preset', CONFIG.cloudinaryPreset);
       fd.append('folder', 'imoveis/' + estado.editId);
-      const res = await fetch('https://api.cloudinary.com/v1_1/' + CONFIG.cloudinaryCloud + '/image/upload', { method: 'POST', body: fd });
+      const res = await fetch('https://api.cloudinary.com/v1_1/' + CONFIG.cloudinaryCloud + '/video/upload', { method: 'POST', body: fd });
       const j = await res.json();
-      if (j.error) throw new Error(j.error.message || 'Falha no upload da imagem.');
-      urls.push(j.secure_url);
+      if (j.error) throw new Error(j.error.message || 'Falha no upload do vídeo.');
+      const eager = (Array.isArray(j.eager) && j.eager[0] && j.eager[0].secure_url) ? j.eager[0].secure_url : j.secure_url;
+      urls.push(eager);
     }
     return urls;
+  }
+
+  // Busca os vídeos da pasta /videos do site (video-01.mp4, video-02.mp4...)
+  // e os envia para o Cloudinary, anexando ao imóvel em edição.
+  async function enviarVideosPasta() {
+    const box = $('#admin-msg');
+    limparMsg(box);
+    if (!configOk()) { msg(box, 'Configure o Supabase em js/config.js antes.', 'err'); return; }
+    const arquivos = [];
+    for (let i = 1; i <= 25; i++) {
+      const nome = 'video-' + String(i).padStart(2, '0');
+      let achou = null;
+      for (const ext of ['mp4', 'webm', 'mov']) {
+        try {
+          const res = await fetch('videos/' + nome + '.' + ext, { method: 'HEAD' });
+          if (res.ok) { achou = nome + '.' + ext; break; }
+        } catch (e) { /* tenta a próxima extensão */ }
+      }
+      if (!achou) break;
+      arquivos.push(achou);
+    }
+    if (!arquivos.length) {
+      msg(box, 'Nenhum vídeo encontrado na pasta /videos. Coloque o arquivo como video-01.mp4 (ou .webm/.mov), publique no GitHub e tente novamente.', 'err');
+      return;
+    }
+    if (!confirm('Enviar ' + arquivos.length + ' vídeo(s) da pasta /videos para o Cloudinary e anexar a este imóvel?')) return;
+    try {
+      msg(box, 'Enviando ' + arquivos.length + ' vídeo(s)... pode levar alguns minutos.', 'info');
+      const urls = [];
+      for (const nome of arquivos) {
+        const res = await fetch('videos/' + nome);
+        if (!res.ok) throw new Error('Falha ao baixar videos/' + nome + ' (HTTP ' + res.status + ')');
+        const blob = await res.blob();
+        const fd = new FormData();
+        fd.append('file', blob, nome);
+        fd.append('upload_preset', CONFIG.cloudinaryPreset);
+        fd.append('folder', 'imoveis/' + estado.editId);
+        const up = await fetch('https://api.cloudinary.com/v1_1/' + CONFIG.cloudinaryCloud + '/video/upload', { method: 'POST', body: fd });
+        const j = await up.json();
+        if (j.error) throw new Error(j.error.message || 'Falha no upload do vídeo.');
+        const eager = (Array.isArray(j.eager) && j.eager[0] && j.eager[0].secure_url) ? j.eager[0].secure_url : j.secure_url;
+        urls.push(eager);
+      }
+      estado.videos = estado.videos.concat(urls);
+      renderVideos();
+      msg(box, urls.length + ' vídeo(s) enviado(s) com sucesso.', 'ok');
+    } catch (e) {
+      msg(box, 'Erro ao enviar vídeos da pasta: ' + e.message, 'err');
+    }
   }
 
   /* ============ VALIDAÇÃO ============ */
@@ -313,6 +438,7 @@
         disponivel: $('#f-disponivel').checked,
         descricao: $('#f-descricao').value.trim(),
         fotos: estado.fotos,
+        videos: estado.videos,
         imagem: estado.fotos[0],
         updated_at: new Date().toISOString()
       };
@@ -354,12 +480,28 @@
     const box = $('#admin-msg');
     limparMsg(box);
     if (!configOk()) { msg(box, 'Configure o Supabase em js/config.js antes de importar.', 'err'); return; }
-    const local = window.IMOVEIS || [];
+    const local = (window.IMOVEIS || []).slice();
     if (!local.length) { msg(box, 'Não há imóveis locais em js/imoveis.js para importar.', 'err'); return; }
-    if (!confirm('Importar ' + local.length + ' imóveis do js/imoveis.js para o banco? Os ids já existentes serão atualizados.')) return;
+    if (!confirm('Importar ' + local.length + ' imóveis do js/imoveis.js para o banco? As galerias Cloudinary já existentes serão preservadas.')) return;
     try {
       msg(box, 'Importando ' + local.length + ' imóveis...', 'info');
-      const { error } = await client.from('imoveis').upsert(local, { onConflict: 'id' });
+
+      // Preserva as galerias Cloudinary já no banco: o js/imoveis.js contém apenas
+      // fotos locais (images/...), e reimportá-lo não deve desfazer a migração.
+      const { data: existentes } = await client.from('imoveis').select('id, imagem, fotos');
+      const mapa = {};
+      (existentes || []).forEach(r => { mapa[r.id] = r; });
+
+      const importar = local.map(i => {
+        const db = mapa[i.id];
+        const temCloudinary = db && Array.isArray(db.fotos) && db.fotos.length &&
+          String(db.fotos[0]).indexOf(CONFIG.cloudinaryCloud) !== -1;
+        const base = Object.assign({}, i, temCloudinary ? { imagem: db.imagem, fotos: db.fotos } : {});
+        if (db && Array.isArray(db.videos) && db.videos.length) base.videos = db.videos.slice();
+        return base;
+      });
+
+      const { error } = await client.from('imoveis').upsert(importar, { onConflict: 'id' });
       if (error) throw error;
       msg(box, local.length + ' imóveis importados/atualizados no Supabase com sucesso!', 'ok');
       await carregarLista();
@@ -483,7 +625,7 @@
     const box = $('#admin-msg');
     limparMsg(box);
     try {
-      msg(box, 'Enviando fotos para o Cloudinary...', 'info');
+      msg(box, 'Comprimindo e enviando fotos para o Cloudinary...', 'info');
       const urls = await enviarFotos(arquivos);
       estado.fotos = estado.fotos.concat(urls);
       renderFotos();
@@ -502,6 +644,32 @@
     renderFotos();
     atualizarPreview();
   });
+
+  $('#f-videos').addEventListener('change', async e => {
+    const arquivos = Array.from(e.target.files || []);
+    if (!arquivos.length) return;
+    const box = $('#admin-msg');
+    limparMsg(box);
+    try {
+      msg(box, 'Enviando vídeo(s) para o Cloudinary... A compressão pode levar alguns minutos.', 'info');
+      const urls = await enviarVideos(arquivos);
+      estado.videos = estado.videos.concat(urls);
+      renderVideos();
+      e.target.value = '';
+      msg(box, urls.length + ' vídeo(s) enviado(s) e comprimido(s) com sucesso.', 'ok');
+    } catch (erro) {
+      msg(box, 'Erro no upload do vídeo: ' + erro.message, 'err');
+    }
+  });
+
+  $('#video-thumbs').addEventListener('click', e => {
+    const btn = e.target.closest('[data-rem-video]');
+    if (!btn) return;
+    estado.videos.splice(Number(btn.dataset.remVideo), 1);
+    renderVideos();
+  });
+
+  $('#btn-videos-pasta').addEventListener('click', enviarVideosPasta);
 
   $('#admin-list').addEventListener('click', e => {
     const ed = e.target.closest('[data-edit]');

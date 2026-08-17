@@ -2,7 +2,7 @@
   'use strict';
 
   var box = null;
-  var imgs = [];
+  var media = [];
   var idx = 0;
   var titulo = '';
 
@@ -16,7 +16,7 @@
       '<button class="lightbox-prev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>' +
       '<button class="lightbox-next" aria-label="Próxima"><i class="fa-solid fa-chevron-right"></i></button>' +
       '<figure class="lightbox-figure">' +
-      '  <img class="lightbox-img" alt="" />' +
+      '  <div class="lightbox-media"></div>' +
       '  <figcaption class="lightbox-caption"></figcaption>' +
       '</figure>' +
       '<span class="lightbox-count"></span>';
@@ -45,12 +45,31 @@
   }
 
   function show() {
-    var img = box.querySelector('.lightbox-img');
-    img.src = (typeof otimizarImagem === 'function') ? otimizarImagem(imgs[idx], 1600) : imgs[idx];
-    img.alt = (titulo ? titulo + ' - ' : '') + 'Foto ' + (idx + 1);
-    box.querySelector('.lightbox-count').textContent = (idx + 1) + ' / ' + imgs.length;
-    box.querySelector('.lightbox-caption').textContent = titulo + ' · ' + (idx + 1) + ' de ' + imgs.length;
-    preloadNear();
+    var holder = box.querySelector('.lightbox-media');
+    holder.innerHTML = '';
+    var m = media[idx];
+    var num = (idx + 1);
+    if (m.tipo === 'video') {
+      var v = document.createElement('video');
+      v.className = 'lightbox-video';
+      v.controls = true;
+      v.autoplay = true;
+      v.playsInline = true;
+      v.preload = 'metadata';
+      v.src = (typeof otimizarVideo === 'function') ? otimizarVideo(m.url, 1280) : m.url;
+      holder.appendChild(v);
+      box.querySelector('.lightbox-count').textContent = num + ' / ' + media.length;
+      box.querySelector('.lightbox-caption').textContent = titulo + ' · Vídeo ' + num + ' de ' + media.length;
+    } else {
+      var img = document.createElement('img');
+      img.className = 'lightbox-img';
+      img.alt = (titulo ? titulo + ' - ' : '') + 'Foto ' + num;
+      img.src = (typeof otimizarImagem === 'function') ? otimizarImagem(m.url, 1600) : m.url;
+      holder.appendChild(img);
+      box.querySelector('.lightbox-count').textContent = num + ' / ' + media.length;
+      box.querySelector('.lightbox-caption').textContent = titulo + ' · ' + num + ' de ' + media.length;
+      preloadNear();
+    }
   }
 
   var preloaded = {};
@@ -64,29 +83,36 @@
     im.src = u;
   }
   function preloadNear() {
-    var total = imgs.length;
+    var total = media.length;
     if (total < 2) return;
     var vizinhos = total === 2 ? [idx - 1] : [idx - 1, idx + 1];
     vizinhos.forEach(function (n) {
       var real = ((n % total) + total) % total;
       if (real === idx) return;
-      preloadOne(optim(imgs[real]));
+      if (media[real].tipo === 'video') return;
+      preloadOne(optim(media[real].url));
     });
   }
 
   function go(n) {
-    var total = imgs.length;
+    var total = media.length;
     if (!total) return;
     idx = ((n % total) + total) % total;
     show();
   }
 
-  function open(fotos, start, caption) {
-    imgs = (Array.isArray(fotos) ? fotos.filter(Boolean) : [fotos]).filter(Boolean);
-    if (!imgs.length) return;
+  function norm(item) {
+    if (typeof item === 'string') return { tipo: 'foto', url: item };
+    return { tipo: (item && item.tipo === 'video') ? 'video' : 'foto', url: item && item.url };
+  }
+
+  function open(mediaIn, start, caption) {
+    var arr = Array.isArray(mediaIn) ? mediaIn : [mediaIn];
+    media = arr.map(norm).filter(function (m) { return m.url; });
+    if (!media.length) return;
     titulo = caption || '';
     idx = Math.max(0, Number(start) || 0);
-    if (idx >= imgs.length) idx = 0;
+    if (idx >= media.length) idx = 0;
     build();
     show();
     box.classList.add('open');
@@ -95,6 +121,8 @@
 
   function close() {
     if (!box) return;
+    var video = box.querySelector('.lightbox-video');
+    if (video) video.pause();
     box.classList.remove('open');
     document.body.style.overflow = '';
   }
