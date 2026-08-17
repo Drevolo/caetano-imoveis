@@ -44,6 +44,8 @@
     return box;
   }
 
+  var currentOrientation = 'horizontal';
+
   function show() {
     var holder = box.querySelector('.lightbox-media');
     holder.innerHTML = '';
@@ -51,11 +53,11 @@
     var num = (idx + 1);
     if (m.tipo === 'video') {
       var v = document.createElement('video');
-      v.className = 'lightbox-video';
+      v.className = 'lightbox-video' + (currentOrientation === 'vertical' ? ' lightbox-video-vertical' : '');
       v.controls = true;
       v.autoplay = true;
       v.playsInline = true;
-      v.preload = 'metadata';
+      v.preload = 'auto';
       v.src = (typeof otimizarVideo === 'function') ? otimizarVideo(m.url, 1280) : m.url;
       holder.appendChild(v);
       box.querySelector('.lightbox-count').textContent = num + ' / ' + media.length;
@@ -106,11 +108,12 @@
     return { tipo: (item && item.tipo === 'video') ? 'video' : 'foto', url: item && item.url };
   }
 
-  function open(mediaIn, start, caption) {
+  function open(mediaIn, start, caption, orientacao) {
     var arr = Array.isArray(mediaIn) ? mediaIn : [mediaIn];
     media = arr.map(norm).filter(function (m) { return m.url; });
     if (!media.length) return;
     titulo = caption || '';
+    currentOrientation = orientacao || 'horizontal';
     idx = Math.max(0, Number(start) || 0);
     if (idx >= media.length) idx = 0;
     build();

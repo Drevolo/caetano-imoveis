@@ -203,10 +203,10 @@
       let el;
       if (m.tipo === 'video') {
         el = document.createElement('video');
-        el.className = 'pd-gallery-video';
+        el.className = 'pd-gallery-video' + ((imovel.video_orientacao === 'vertical') ? ' pd-video-vertical' : '');
         el.controls = true;
         el.playsInline = true;
-        el.preload = 'none';
+        el.preload = 'auto';
         el.src = (typeof otimizarVideo === 'function') ? otimizarVideo(m.url, 1280) : m.url;
         if (galFotos[0]) el.poster = otimizarImagem(galFotos[0], 1280);
       } else {
@@ -239,7 +239,7 @@
 
     if (galMain) galMain.addEventListener('click', () => {
       if (galMidia[galIdx] && galMidia[galIdx].tipo === 'video') return;
-      if (window.Lightbox) Lightbox.open(galMidia, galIdx, imovel.titulo);
+      if (window.Lightbox) Lightbox.open(galMidia, galIdx, imovel.titulo, imovel.video_orientacao || 'horizontal');
     });
 
     $$('.pd-gallery-thumb').forEach(t => {
@@ -248,7 +248,7 @@
         showGallery(i);
         startGalTimer();
         if (galMidia[i] && galMidia[i].tipo === 'video') return;
-        if (window.Lightbox) Lightbox.open(galMidia, i, imovel.titulo);
+        if (window.Lightbox) Lightbox.open(galMidia, i, imovel.titulo, imovel.video_orientacao || 'horizontal');
       });
     });
 

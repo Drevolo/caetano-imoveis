@@ -159,6 +159,7 @@
     $('#f-descricao').value = imovel ? imovel.descricao || '' : '';
     $('#f-fotos').value = '';
     $('#f-videos').value = '';
+    $('#f-video-orientacao').value = imovel ? (imovel.video_orientacao || 'horizontal') : 'horizontal';
     renderFotos();
     renderVideos();
     atualizarPreview();
@@ -439,6 +440,7 @@
         descricao: $('#f-descricao').value.trim(),
         fotos: estado.fotos,
         videos: estado.videos,
+        video_orientacao: $('#f-video-orientacao').value || 'horizontal',
         imagem: estado.fotos[0],
         updated_at: new Date().toISOString()
       };
@@ -498,6 +500,7 @@
           String(db.fotos[0]).indexOf(CONFIG.cloudinaryCloud) !== -1;
         const base = Object.assign({}, i, temCloudinary ? { imagem: db.imagem, fotos: db.fotos } : {});
         if (db && Array.isArray(db.videos) && db.videos.length) base.videos = db.videos.slice();
+        if (db && db.video_orientacao) base.video_orientacao = db.video_orientacao;
         return base;
       });
 

@@ -27,6 +27,7 @@ create table if not exists public.imoveis (
   imagem      text,
   fotos       text[] not null default '{}',
   videos      text[] not null default '{}',
+  video_orientacao text not null default 'horizontal',
   data        text,
   descricao   text,
   disponivel  boolean not null default true,
