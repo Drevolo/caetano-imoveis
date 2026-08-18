@@ -2265,7 +2265,7 @@ window.IMOVEIS = [
 
 window.CONTATOS = {
   telefoneAluguel: "(62) 98507-0819",
-  telefoneVendas: "(62) 98573-9405",
+  telefoneVendas: "(62) 98415-8065",
   telefoneVendas2: "(62) 98415-8065",
   whatsapp: "5562985070819",
   email: "contato@caetanoimoveis.com.br",

@@ -96,7 +96,7 @@ O site usa o **Tailwind CSS via CDN** para o layout responsivo:
 
 O contato por telefone reúne os números de **Aluguel** e **Vendas** sob o mesmo ícone:
 
-- Aluguel: (62) 98507-0819 · Vendas: (62) 98573-9405
+- Aluguel: (62) 98507-0819 · Vendas: (62) 98415-8065
 - E-mail: contato@caetanoimoveis.com.br
 
 ## Publicação (GitHub Pages)
