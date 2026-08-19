@@ -146,7 +146,13 @@
         <input type="text" id="admin-busca" placeholder="Buscar por título..." style="margin-left:auto;border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;min-width:220px;" />
       </div>
       <div class="admin-msg" id="admin-msg"></div>
-      <div id="admin-list" class="admin-list"></div>
+      <div id="admin-list" class="admin-list">
+        <div class="skeleton-admin-item"><div class="skeleton skeleton-admin-thumb"></div><div class="skeleton-admin-info"><div class="skeleton skeleton-text w60" style="height:16px;"></div><div class="skeleton skeleton-text w80" style="height:12px;"></div></div></div>
+        <div class="skeleton-admin-item"><div class="skeleton skeleton-admin-thumb"></div><div class="skeleton-admin-info"><div class="skeleton skeleton-text w60" style="height:16px;"></div><div class="skeleton skeleton-text w80" style="height:12px;"></div></div></div>
+        <div class="skeleton-admin-item"><div class="skeleton skeleton-admin-thumb"></div><div class="skeleton-admin-info"><div class="skeleton skeleton-text w60" style="height:16px;"></div><div class="skeleton skeleton-text w80" style="height:12px;"></div></div></div>
+        <div class="skeleton-admin-item"><div class="skeleton skeleton-admin-thumb"></div><div class="skeleton-admin-info"><div class="skeleton skeleton-text w60" style="height:16px;"></div><div class="skeleton skeleton-text w80" style="height:12px;"></div></div></div>
+        <div class="skeleton-admin-item"><div class="skeleton skeleton-admin-thumb"></div><div class="skeleton-admin-info"><div class="skeleton skeleton-text w60" style="height:16px;"></div><div class="skeleton skeleton-text w80" style="height:12px;"></div></div></div>
+      </div>
     </section>
 
     <!-- ===== FORMULÁRIO ===== -->
@@ -291,6 +297,7 @@
   <script src="js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/imoveis.js"></script>
+  <script src="js/imoveis-api.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

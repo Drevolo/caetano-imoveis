@@ -1,26 +1,26 @@
 (function () {
   'use strict';
 
-  const header = document.getElementById('site-header');
+  var header = document.getElementById('site-header');
   if (!header) return;
 
-  const LIMIAR_COLAPSAR = 120;
-  const LIMIAR_PROXIMO = 10;
-  const LIMIAR_FUNDO = 200;
+  var LIMIAR_COLAPSAR = 120;
+  var LIMIAR_PROXIMO = 10;
+  var LIMIAR_FUNDO = 200;
 
-  let ultimoY = window.scrollY;
-  let direcao = 0;
+  var ultimoY = window.scrollY;
+  var direcao = 0;
 
-  window.addEventListener('scroll', function () {
-    const y = window.scrollY;
-    const dy = y - ultimoY;
+  window.addEventListener('scroll', throttle(function () {
+    var y = window.scrollY;
+    var dy = y - ultimoY;
     if (Math.abs(dy) < LIMIAR_PROXIMO) return;
 
     direcao = dy > 0 ? 1 : -1;
     ultimoY = y;
 
-    const fimPagina = document.documentElement.scrollHeight - window.innerHeight;
-    const colapsar = direcao === 1 && y > LIMIAR_COLAPSAR && y < fimPagina - LIMIAR_FUNDO;
+    var fimPagina = document.documentElement.scrollHeight - window.innerHeight;
+    var colapsar = direcao === 1 && y > LIMIAR_COLAPSAR && y < fimPagina - LIMIAR_FUNDO;
     header.classList.toggle('scrolled', colapsar);
-  });
+  }, 50));
 })();

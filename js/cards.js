@@ -63,7 +63,7 @@
     if (imovel.suites) am += '<span><i class="fa-solid fa-door-open"></i> ' + imovel.suites + '</span>';
     if (imovel.banheiros) am += '<span><i class="fa-solid fa-bath"></i> ' + imovel.banheiros + '</span>';
     if (imovel.garagem) am += '<span><i class="fa-solid fa-car"></i> ' + imovel.garagem + '</span>';
-    if (imovel.area) am += '<span><i class="fa-solid fa-ruler-combined"></i> ' + imovel.area + ' m²</span>';
+    if (imovel.area != null && imovel.area !== 0) am += '<span><i class="fa-solid fa-ruler-combined"></i> ' + imovel.area + ' m²</span>';
     return '<article class="property-card" data-id="' + imovel.id + '">' +
       '<div class="property-thumb">' + cardThumb(imovel) +
         '<div class="property-badges"><span class="badge">' + escapeHtml(imovel.status) + '</span></div>' +
@@ -98,12 +98,89 @@
     }, interval || 3500);
   }
 
+  function skeletonCardHTML() {
+    return '<article class="skeleton-card">' +
+      '<div class="skeleton skeleton-thumb"></div>' +
+      '<div class="skeleton-body">' +
+        '<div class="skeleton skeleton-text h20 w60"></div>' +
+        '<div class="skeleton skeleton-text h28 w80"></div>' +
+        '<div class="skeleton skeleton-text w60"></div>' +
+        '<div class="skeleton-amenities">' +
+          '<div class="skeleton skeleton-text"></div>' +
+          '<div class="skeleton skeleton-text"></div>' +
+          '<div class="skeleton skeleton-text"></div>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function skeletonGridHTML(count) {
+    var html = '';
+    for (var i = 0; i < (count || 6); i++) html += skeletonCardHTML();
+    return html;
+  }
+
+  function skeletonDetailHTML() {
+    return '<div class="container pd-hero">' +
+      '<div class="skeleton skeleton-detail-hero"></div>' +
+    '</div>' +
+    '<div class="container pd-grid">' +
+      '<div class="pd-main">' +
+        '<div class="skeleton skeleton-detail-price"></div>' +
+        '<div class="skeleton skeleton-detail-title"></div>' +
+        '<div class="skeleton skeleton-detail-location"></div>' +
+        '<div class="skeleton-detail-amenities">' +
+          '<div class="skeleton skeleton-detail-amenity"></div>' +
+          '<div class="skeleton skeleton-detail-amenity"></div>' +
+          '<div class="skeleton skeleton-detail-amenity"></div>' +
+          '<div class="skeleton skeleton-detail-amenity"></div>' +
+        '</div>' +
+        '<div class="skeleton-detail-box">' +
+          '<div class="skeleton skeleton-text h28 w60"></div>' +
+          '<div class="skeleton skeleton-text"></div>' +
+          '<div class="skeleton skeleton-text w80"></div>' +
+          '<div class="skeleton skeleton-text"></div>' +
+          '<div class="skeleton skeleton-text w60"></div>' +
+        '</div>' +
+      '</div>' +
+      '<aside class="pd-side">' +
+        '<div class="skeleton-detail-box">' +
+          '<div class="skeleton skeleton-text h28 w80"></div>' +
+          '<div class="skeleton skeleton-text"></div>' +
+          '<div class="skeleton skeleton-text w60"></div>' +
+          '<div class="skeleton skeleton-text"></div>' +
+        '</div>' +
+      '</aside>' +
+    '</div>';
+  }
+
+  function skeletonAdminItemHTML() {
+    return '<div class="skeleton-admin-item">' +
+      '<div class="skeleton skeleton-admin-thumb"></div>' +
+      '<div class="skeleton-admin-info">' +
+        '<div class="skeleton skeleton-text w60" style="height:16px;"></div>' +
+        '<div class="skeleton skeleton-text w80" style="height:12px;"></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function skeletonAdminListHTML(count) {
+    var html = '';
+    for (var i = 0; i < (count || 5); i++) html += skeletonAdminItemHTML();
+    return html;
+  }
+
   window.Cards = {
     fotosDe: fotosDe,
     mediaDe: mediaDe,
     cardThumb: cardThumb,
     showSlide: showSlide,
     cardHTML: cardHTML,
+    skeletonCardHTML: skeletonCardHTML,
+    skeletonGridHTML: skeletonGridHTML,
+    skeletonDetailHTML: skeletonDetailHTML,
+    skeletonAdminItemHTML: skeletonAdminItemHTML,
+    skeletonAdminListHTML: skeletonAdminListHTML,
     setupCarousels: setupCarousels,
     autoAdvance: autoAdvance
   };

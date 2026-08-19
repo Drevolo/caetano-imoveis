@@ -51,8 +51,8 @@
     switch (state.sort) {
       case 'preco-asc': l.sort((a, b) => a.preco - b.preco); break;
       case 'preco-desc': l.sort((a, b) => b.preco - a.preco); break;
-      case 'data-desc': l.sort((a, b) => new Date(b.data) - new Date(a.data)); break;
-      case 'data-asc': l.sort((a, b) => new Date(a.data) - new Date(b.data)); break;
+      case 'data-desc': l.sort((a, b) => new Date(b.data || '1970-01-01') - new Date(a.data || '1970-01-01')); break;
+      case 'data-asc': l.sort((a, b) => new Date(a.data || '1970-01-01') - new Date(b.data || '1970-01-01')); break;
       case 'tipo': l.sort((a, b) => a.tipo.localeCompare(b.tipo)); break;
       default:
         l.sort((a, b) => a.id - b.id);
@@ -289,6 +289,10 @@
     $('#f-preco-max').value = '';
     state.busca = ''; state.tipo = ''; state.categoria = ''; state.bairro = ''; state.local = '';
     state.precoMin = 0; state.precoMax = Infinity; state.quartos = 0;
+    state.status = 'Aluguel';
+    state.sort = 'padrao';
+    $('#sort-select').value = 'padrao';
+    $$('.search-tab').forEach(t => t.classList.toggle('active', t.dataset.status === 'Aluguel'));
     state.pagina = 1;
     render();
   }
@@ -373,7 +377,7 @@
 
   const sections = ['home', 'quem-somos', 'imoveis', 'financie', 'contato'];
   const headerLinks = $$('#main-nav a');
-  window.addEventListener('scroll', () => {
+  window.addEventListener('scroll', throttle(function () {
     const pos = window.scrollY + 120;
     let current = '';
     sections.forEach(s => {
@@ -381,7 +385,7 @@
       if (el && el.offsetTop <= pos) current = s;
     });
     headerLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
-  });
+  }, 100));
 
   /* ============ FORM CONTATO → WHATSAPP ============ */
   $('#contact-form').addEventListener('submit', e => {
@@ -391,11 +395,13 @@
     const email = $('#c-email').value.trim();
     const interesse = $('#c-interesse').value;
     const msg = $('#c-mensagem').value.trim();
-    const texto = `Olá! Meu nome é ${nome}.%0A%0A` +
-      `Telefone: ${tel}%0A` +
-      `E-mail: ${email}%0A` +
-      `Interesse: ${interesse || 'Não informado'}%0A%0A` +
-      `Mensagem: ${msg.replace(/\n/g, '%0A')}`;
+    const texto = encodeURIComponent(
+      `Olá! Meu nome é ${nome}.\n\n` +
+      `Telefone: ${tel}\n` +
+      `E-mail: ${email}\n` +
+      `Interesse: ${interesse || 'Não informado'}\n\n` +
+      `Mensagem: ${msg}`
+    );
     window.open(`https://api.whatsapp.com/send/?phone=5562985070819&text=${texto}`, '_blank');
     e.target.reset();
   });
@@ -446,6 +452,13 @@
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
+  });
+
+  // Listener para atualização SWR em background
+  window.addEventListener('imoveis-updated', function () {
+    state.favoritos = Favoritos.read();
+    populateBairros();
+    render();
   });
 
   carregarImoveis().then(function () {

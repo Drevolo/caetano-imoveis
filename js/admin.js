@@ -14,10 +14,12 @@
   const estado = {
     session: null,
     imoveis: [],
-    editando: null,   // objeto em edição (null = novo)
-    editId: null,     // id que será usado (novo = próximo id)
-    fotos: [],        // URLs atuais das fotos do formulário
-    videos: []        // URLs atuais dos vídeos do formulário
+    editando: null,
+    editId: null,
+    fotos: [],
+    videos: [],
+    loginAttempts: 0,
+    loginBlockedUntil: 0
   };
 
   let client = null;
@@ -34,6 +36,33 @@
   }
   function limparMsg(el) { el.className = 'admin-msg'; el.textContent = ''; }
 
+  /* ============ RATE LIMITING: LOGIN ============ */
+  var LOGIN_MAX = 5;
+  var LOGIN_WINDOW = 5 * 60 * 1000; // 5 minutos
+
+  function isLoginBlocked() {
+    if (estado.loginBlockedUntil && Date.now() < estado.loginBlockedUntil) {
+      var secs = Math.ceil((estado.loginBlockedUntil - Date.now()) / 1000);
+      return 'Aguarde ' + secs + ' segundos antes de tentar novamente.';
+    }
+    return false;
+  }
+
+  function registerLoginAttempt() {
+    estado.loginAttempts++;
+    if (estado.loginAttempts >= LOGIN_MAX) {
+      estado.loginBlockedUntil = Date.now() + LOGIN_WINDOW;
+      estado.loginAttempts = 0;
+      return 'Muitas tentativas. Conta bloqueada por 5 minutos.';
+    }
+    return null;
+  }
+
+  function resetLoginAttempts() {
+    estado.loginAttempts = 0;
+    estado.loginBlockedUntil = 0;
+  }
+
   /* ============ AUTH ============ */
   async function checkSession() {
     if (!configOk()) {
@@ -41,8 +70,28 @@
       return;
     }
     client = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
+
+    // Monitora mudanças de autenticação (logout em outra aba, expiração)
+    client.auth.onAuthStateChange(function (event, session) {
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        if (!session && estado.session) {
+          estado.session = null;
+          mostrarLogin();
+          msg($('#login-msg'), 'Sessão expirada. Faça login novamente.', 'info');
+        }
+        if (session) estado.session = session;
+      }
+    });
+
     const { data } = await client.auth.getSession();
     if (data.session) {
+      // Verifica se o token não está prestes a expirar (refresh proativo)
+      var expiresAt = data.session.expires_at * 1000;
+      var now = Date.now();
+      if (expiresAt - now < 60 * 1000) {
+        // Token expira em menos de 1 minuto, força refresh
+        try { await client.auth.refreshSession(); } catch (e) { /* ignore */ }
+      }
       estado.session = data.session;
       mostrarPainel();
     } else {
@@ -68,9 +117,23 @@
   async function login(email, senha) {
     const box = $('#login-msg');
     limparMsg(box);
+
+    // Rate limit check
+    var blocked = isLoginBlocked();
+    if (blocked) { msg(box, blocked, 'err'); return; }
+
     try {
       const { data, error } = await client.auth.signInWithPassword({ email, password: senha });
-      if (error) throw error;
+      if (error) {
+        var rateMsg = registerLoginAttempt();
+        var errMsg = error.message || 'Não foi possível entrar.';
+        if (error.message && error.message.indexOf('Invalid login credentials') !== -1) {
+          errMsg = 'E-mail ou senha incorretos.';
+        }
+        if (rateMsg) errMsg += ' ' + rateMsg;
+        throw new Error(errMsg);
+      }
+      resetLoginAttempts();
       estado.session = data.session;
       mostrarPainel();
     } catch (e) {
@@ -106,7 +169,7 @@
     }
 
     box.innerHTML = lista.map(i => `
-      <div class="al-item">
+      <div class="al-item" data-item-id="${i.id}">
         <img src="${escapeHtml(otimizarImagem(i.imagem, 320))}" alt="${escapeHtml(i.titulo)}" onerror="this.style.display='none'" />
         <div class="al-info">
           <h4>${escapeHtml(i.titulo)} <span class="al-badge ${i.disponivel === false ? 'off' : 'on'}">${i.disponivel === false ? 'Indisponível' : escapeHtml(i.status)}</span></h4>
@@ -119,6 +182,24 @@
         </div>
       </div>
     `).join('');
+  }
+
+  // Renderiza um único item da lista (para optimistic updates)
+  function renderSingleItem(i) {
+    return `
+      <div class="al-item" data-item-id="${i.id}">
+        <img src="${escapeHtml(otimizarImagem(i.imagem, 320))}" alt="${escapeHtml(i.titulo)}" onerror="this.style.display='none'" />
+        <div class="al-info">
+          <h4>${escapeHtml(i.titulo)} <span class="al-badge ${i.disponivel === false ? 'off' : 'on'}">${i.disponivel === false ? 'Indisponível' : escapeHtml(i.status)}</span></h4>
+          <p>#${i.id} · ${escapeHtml(i.tipo)}${i.bairro ? ' · ' + escapeHtml(i.bairro) : ''} · ${escapeHtml(i.cidade)} · R$ ${precoFormatado(i.preco)}${i.status === 'Aluguel' ? '/mês' : ''}</p>
+        </div>
+        <div class="al-actions">
+          <button data-edit="${i.id}" title="Editar"><i class="fa-solid fa-pen"></i></button>
+          <button data-toggle="${i.id}" title="${i.disponivel === false ? 'Publicar' : 'Tirar do ar'}"><i class="fa-solid ${i.disponivel === false ? 'fa-circle-check' : 'fa-eye-slash'}"></i></button>
+          <button class="del" data-del="${i.id}" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    `;
   }
 
   /* ============ FORMULÁRIO ============ */
@@ -247,8 +328,6 @@
     `).join('');
   }
 
-  // Comprime a foto no navegador (máx. 1920px, JPEG ~82%) para reduzir
-  // o upload. Corrige a orientação de fotos de celular via createImageBitmap.
   async function comprimirImagem(file) {
     if (file.type === 'image/gif' || (file.size || 0) < 200 * 1024) return file;
     try {
@@ -278,23 +357,36 @@
     }
   }
 
+  // Upload com throttle: máximo 2 uploads simultâneos
+  var MAX_CONCURRENT_UPLOADS = 2;
   async function enviarFotos(arquivos) {
     if (!CONFIG.cloudinaryCloud || CONFIG.cloudinaryCloud.indexOf('SEU-CLOUD') !== -1 || !CONFIG.cloudinaryPreset) {
       throw new Error('Configure o Cloudinary em js/config.js (cloud name e upload preset).');
     }
-    const urls = [];
-    for (const arquivo of arquivos) {
-      const a = await comprimirImagem(arquivo);
-      const fd = new FormData();
-      fd.append('file', a);
-      fd.append('upload_preset', CONFIG.cloudinaryPreset);
-      fd.append('folder', 'imoveis/' + estado.editId);
-      const res = await fetch('https://api.cloudinary.com/v1_1/' + CONFIG.cloudinaryCloud + '/image/upload', { method: 'POST', body: fd });
-      const j = await res.json();
-      if (j.error) throw new Error(j.error.message || 'Falha no upload da imagem.');
-      urls.push(j.secure_url);
+    const urls = new Array(arquivos.length);
+    let idx = 0;
+
+    async function uploadOne() {
+      while (idx < arquivos.length) {
+        const i = idx++;
+        const a = await comprimirImagem(arquivos[i]);
+        const fd = new FormData();
+        fd.append('file', a);
+        fd.append('upload_preset', CONFIG.cloudinaryPreset);
+        fd.append('folder', 'imoveis/' + estado.editId);
+        const res = await fetch('https://api.cloudinary.com/v1_1/' + CONFIG.cloudinaryCloud + '/image/upload', { method: 'POST', body: fd });
+        const j = await res.json();
+        if (j.error) throw new Error(j.error.message || 'Falha no upload da imagem.');
+        urls[i] = j.secure_url;
+      }
     }
-    return urls;
+
+    var workers = [];
+    for (var w = 0; w < Math.min(MAX_CONCURRENT_UPLOADS, arquivos.length); w++) {
+      workers.push(uploadOne());
+    }
+    await Promise.all(workers);
+    return urls.filter(Boolean);
   }
 
   /* ============ VÍDEOS ============ */
@@ -312,11 +404,6 @@
     `).join('');
   }
 
-  // Envia o vídeo para o Cloudinary. Em uploads unsigned o parâmetro
-  // "eager" não é permitido, então salvamos a URL original do vídeo; a
-  // compressão acontece na entrega (f_mp4,q_auto,w_1280 - ver otimizarVideo).
-  // Se o preset estiver configurado com eager transformation, a resposta
-  // traz a versão comprimida em j.eager e ela é usada.
   async function enviarVideos(arquivos) {
     if (!CONFIG.cloudinaryCloud || CONFIG.cloudinaryCloud.indexOf('SEU-CLOUD') !== -1 || !CONFIG.cloudinaryPreset) {
       throw new Error('Configure o Cloudinary em js/config.js (cloud name e upload preset).');
@@ -336,8 +423,6 @@
     return urls;
   }
 
-  // Busca os vídeos da pasta /videos do site (video-01.mp4, video-02.mp4...)
-  // e os envia para o Cloudinary, anexando ao imóvel em edição.
   async function enviarVideosPasta() {
     const box = $('#admin-msg');
     limparMsg(box);
@@ -403,7 +488,7 @@
     return true;
   }
 
-  /* ============ SALVAR ============ */
+  /* ============ SALVAR (OPTIMISTIC) ============ */
   async function salvar(e) {
     e.preventDefault();
     limparMsg($('#admin-msg'));
@@ -414,67 +499,127 @@
     const original = btn.innerHTML;
     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Salvando...';
 
-    try {
-      const registro = {
-        id: estado.editId,
-        referencia: $('#f-referencia').value.trim() || 'CI-' + String(estado.editId).padStart(3, '0'),
-        titulo: $('#f-titulo').value.trim(),
-        categoria: $('#f-categoria').value,
-        tipo: $('#f-tipo').value,
-        status: $('#f-status').value,
-        bairro: $('#f-bairro').value.trim(),
-        localizacao: $('#f-localizacao').value.trim(),
-        cidade: $('#f-cidade').value.trim(),
-        preco: Number($('#f-preco').value),
-        condominio: $('#f-condominio').value ? Number($('#f-condominio').value) : null,
-        iptu: $('#f-iptu').value ? Number($('#f-iptu').value) : null,
-        area: Number($('#f-area').value) || 0,
-        quartos: Number($('#f-quartos').value) || 0,
-        suites: Number($('#f-suites').value) || 0,
-        banheiros: Number($('#f-banheiros').value) || 0,
-        garagem: Number($('#f-garagem').value) || 0,
-        data: $('#f-data').value || '',
-        mobiliado: $('#f-mobiliado').checked,
-        destaque: $('#f-destaque').checked,
-        disponivel: $('#f-disponivel').checked,
-        descricao: $('#f-descricao').value.trim(),
-        fotos: estado.fotos,
-        videos: estado.videos,
-        video_orientacao: $('#f-video-orientacao').value || 'horizontal',
-        imagem: estado.fotos[0],
-        updated_at: new Date().toISOString()
-      };
+    const registro = {
+      id: estado.editId,
+      referencia: $('#f-referencia').value.trim() || 'CI-' + String(estado.editId).padStart(3, '0'),
+      titulo: $('#f-titulo').value.trim(),
+      categoria: $('#f-categoria').value,
+      tipo: $('#f-tipo').value,
+      status: $('#f-status').value,
+      bairro: $('#f-bairro').value.trim(),
+      localizacao: $('#f-localizacao').value.trim(),
+      cidade: $('#f-cidade').value.trim(),
+      preco: Number($('#f-preco').value),
+      condominio: $('#f-condominio').value ? Number($('#f-condominio').value) : null,
+      iptu: $('#f-iptu').value ? Number($('#f-iptu').value) : null,
+      area: Number($('#f-area').value) || 0,
+      quartos: Number($('#f-quartos').value) || 0,
+      suites: Number($('#f-suites').value) || 0,
+      banheiros: Number($('#f-banheiros').value) || 0,
+      garagem: Number($('#f-garagem').value) || 0,
+      data: $('#f-data').value || '',
+      mobiliado: $('#f-mobiliado').checked,
+      destaque: $('#f-destaque').checked,
+      disponivel: $('#f-disponivel').checked,
+      descricao: $('#f-descricao').value.trim(),
+      fotos: estado.fotos,
+      videos: estado.videos,
+      video_orientacao: $('#f-video-orientacao').value || 'horizontal',
+      imagem: estado.fotos[0],
+      updated_at: new Date().toISOString()
+    };
 
+    // OPTIMISTIC: atualiza a lista local imediatamente
+    var isEdit = !!estado.editando;
+    var indiceAnterior = estado.imoveis.findIndex(i => i.id === registro.id);
+
+    if (isEdit && indiceAnterior !== -1) {
+      // Atualiza otimisticamente na lista
+      estado.imoveis[indiceAnterior] = Object.assign({}, estado.imoveis[indiceAnterior], registro);
+      renderLista();
+    } else if (!isEdit) {
+      // Insere otimisticamente
+      estado.imoveis.push(registro);
+      renderLista();
+    }
+
+    fecharForm();
+    msg($('#admin-msg'), isEdit ? 'Salvando alterações...' : 'Criando imóvel...', 'info');
+
+    try {
       const { error } = await client.from('imoveis').upsert(registro, { onConflict: 'id' });
       if (error) throw error;
-
-      msg($('#admin-msg'), 'Imóvel salvo e publicado no site! ' + (estado.editando ? 'Edição concluída.' : 'Novo imóvel criado.'), 'ok');
-      fecharForm();
+      if (typeof invalidarCacheImoveis === 'function') invalidarCacheImoveis();
+      msg($('#admin-msg'), 'Imóvel salvo e publicado no site! ' + (isEdit ? 'Edição concluída.' : 'Novo imóvel criado.'), 'ok');
       await carregarLista();
     } catch (erro) {
-      msg($('#admin-msg'), 'Erro ao salvar: ' + erro.message, 'err');
+      // REVERT: desfaz a atualização otimística
+      if (isEdit && indiceAnterior !== -1) {
+        // Recarrega a lista original do servidor
+        await carregarLista();
+      } else if (!isEdit) {
+        estado.imoveis = estado.imoveis.filter(i => i.id !== registro.id);
+        renderLista();
+      }
+      msg($('#admin-msg'), 'Erro ao salvar: ' + erro.message + '. Alteração desfeita.', 'err');
     } finally {
       btn.disabled = false;
       btn.innerHTML = original;
     }
   }
 
-  /* ============ AÇÕES DA LISTA ============ */
+  /* ============ AÇÕES DA LISTA (OPTIMISTIC) ============ */
   async function alternarDisponivel(id) {
     const item = estado.imoveis.find(i => i.id === id);
     if (!item) return;
     const novo = item.disponivel === false;
+
+    // OPTIMISTIC: atualiza badge imediatamente
+    var el = document.querySelector('[data-item-id="' + id + '"] .al-badge');
+    var toggleBtn = document.querySelector('[data-toggle="' + id + '"]');
+    var valorAnterior = item.disponivel;
+    item.disponivel = novo;
+    if (el) {
+      el.className = 'al-badge ' + (novo ? 'on' : 'off');
+      el.textContent = novo ? item.status : 'Indisponível';
+    }
+    if (toggleBtn) {
+      toggleBtn.title = novo ? 'Tirar do ar' : 'Publicar';
+      toggleBtn.querySelector('i').className = 'fa-solid ' + (novo ? 'fa-eye-slash' : 'fa-circle-check');
+    }
+
     const { error } = await client.from('imoveis').update({ disponivel: novo, updated_at: new Date().toISOString() }).eq('id', id);
-    if (error) { msg($('#admin-msg'), 'Erro: ' + error.message, 'err'); return; }
-    await carregarLista();
+    if (error) {
+      // REVERT
+      item.disponivel = valorAnterior;
+      await carregarLista();
+      msg($('#admin-msg'), 'Erro: ' + error.message + '. Alteração desfeita.', 'err');
+      return;
+    }
+    if (typeof invalidarCacheImoveis === 'function') invalidarCacheImoveis();
   }
 
   async function excluir(id) {
     if (!confirm('Excluir definitivamente o imóvel #' + id + '? Essa ação não pode ser desfeita.')) return;
+
+    // OPTIMISTIC: remove da lista imediatamente
+    var itemRemovido = estado.imoveis.find(i => i.id === id);
+    var idx = estado.imoveis.findIndex(i => i.id === id);
+    estado.imoveis.splice(idx, 1);
+    renderLista();
+
     const { error } = await client.from('imoveis').delete().eq('id', id);
-    if (error) { msg($('#admin-msg'), 'Erro ao excluir: ' + error.message, 'err'); return; }
+    if (error) {
+      // REVERT: recoloca o item
+      if (itemRemovido) {
+        estado.imoveis.splice(idx, 0, itemRemovido);
+        renderLista();
+      }
+      msg($('#admin-msg'), 'Erro ao excluir: ' + error.message + '. Exclusão desfeita.', 'err');
+      return;
+    }
+    if (typeof invalidarCacheImoveis === 'function') invalidarCacheImoveis();
     msg($('#admin-msg'), 'Imóvel #' + id + ' excluído.', 'ok');
-    await carregarLista();
   }
 
   /* ============ IMPORTAR BASE LOCAL ============ */
@@ -488,8 +633,6 @@
     try {
       msg(box, 'Importando ' + local.length + ' imóveis...', 'info');
 
-      // Preserva as galerias Cloudinary já no banco: o js/imoveis.js contém apenas
-      // fotos locais (images/...), e reimportá-lo não deve desfazer a migração.
       const { data: existentes } = await client.from('imoveis').select('id, imagem, fotos');
       const mapa = {};
       (existentes || []).forEach(r => { mapa[r.id] = r; });
@@ -506,6 +649,7 @@
 
       const { error } = await client.from('imoveis').upsert(importar, { onConflict: 'id' });
       if (error) throw error;
+      if (typeof invalidarCacheImoveis === 'function') invalidarCacheImoveis();
       msg(box, local.length + ' imóveis importados/atualizados no Supabase com sucesso!', 'ok');
       await carregarLista();
     } catch (e) {
@@ -557,6 +701,7 @@
         }
         msg(box, 'Migrando fotos... ' + (idx + 1) + ' de ' + total + ' imóveis', 'info');
       }
+      if (typeof invalidarCacheImoveis === 'function') invalidarCacheImoveis();
       msg(box, 'Migração concluída: ' + ok + ' imóveis com fotos no Cloudinary' + (falhas ? ', ' + falhas + ' erros (veja o console).' : '.'), ok ? 'ok' : 'err');
       await carregarLista();
     } catch (e) {
@@ -589,6 +734,7 @@
         else ok++;
         if (i % 10 === 0 || i === ids.length - 1) msg(box, 'Aplicando fotos... ' + (i + 1) + ' de ' + ids.length, 'info');
       }
+      if (typeof invalidarCacheImoveis === 'function') invalidarCacheImoveis();
       msg(box, 'Fotos aplicadas: ' + ok + ' imóveis atualizados' + (falhas ? ', ' + falhas + ' falhas (veja o console).' : ' com sucesso!'), ok ? 'ok' : 'err');
       await carregarLista();
     } catch (e) {
@@ -610,7 +756,8 @@
   $('#btn-migrar').addEventListener('click', migrarFotos);
   $('#btn-aplicar-fotos').addEventListener('click', aplicarFotosMigradas);
 
-  $('#admin-busca').addEventListener('input', renderLista);
+  // Debounce na busca do admin
+  $('#admin-busca').addEventListener('input', debounce(renderLista, 250));
 
   $('#f-categoria').addEventListener('change', preencherTipos);
   $('#f-tipo').addEventListener('change', atualizarPreview);
