@@ -63,7 +63,7 @@
     <div class="footer-bottom">
       <div class="container">
         &copy; <span id="year"></span> Caetano Imóveis - Todos os direitos reservados.
-        <span class="footer-credit">Desenvolvido por <a href="#" target="_blank" rel="noopener">Gabriel Barros Miranda</a></span>
+        <span class="footer-credit">Desenvolvido por <a href="https://drevolo.github.io/portfolio/" target="_blank" rel="noopener">Gabriel Barros Miranda</a></span>
       </div>
     </div>
   </footer>`;
