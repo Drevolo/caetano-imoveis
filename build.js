@@ -80,7 +80,7 @@ function buildCSS() {
 
 // ============ JS ============
 
-function buildJS() {
+async function buildJS() {
   log('Verificando JS...');
   const jsFiles = [
     'config.js', 'favoritos.js', 'imoveis.js', 'imoveis-api.js',
@@ -114,7 +114,7 @@ function buildJS() {
         if (skipMin.includes(f)) continue;
         try {
           const code = read('js/' + f);
-          const result = terser.minify(code, { compress: { drop_console: false } });
+          const result = await terser.minify(code, { compress: { drop_console: false } });
           if (result.code) writeDist('js/' + f.replace('.js', '.min.js'), result.code);
         } catch (e) { /* skip individual files */ }
       }
@@ -206,11 +206,6 @@ function buildHTML() {
 function copyStatic() {
   log('Copiando arquivos estáticos...');
 
-  // SQL
-  try { writeDist('sql/setup.sql', read('sql/setup.sql')); } catch (e) {}
-  try { writeDist('sql/migrar-videos.sql', read('sql/migrar-videos.sql')); } catch (e) {}
-  try { writeDist('sql/migrar-video-orientacao.sql', read('sql/migrar-video-orientacao.sql')); } catch (e) {}
-
   // Imagens (favicon)
   const imgDir = path.join(SRC, 'images');
   if (fs.existsSync(imgDir)) {
@@ -244,7 +239,7 @@ function copyDirRecursive(srcRel, destRel) {
 
 // ============ BUILD ============
 
-function build() {
+async function build() {
   const start = Date.now();
   log('Iniciando build...');
 
@@ -254,7 +249,7 @@ function build() {
   }
 
   buildCSS();
-  buildJS();
+  await buildJS();
   buildHTML();
   copyStatic();
 
@@ -269,12 +264,12 @@ function watch() {
   let timeout;
   const rebuild = () => {
     clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      try { build(); } catch (e) { err(e.message); }
+    timeout = setTimeout(async () => {
+      try { await build(); } catch (e) { err(e.message); }
     }, 200);
   };
 
-  const watchDirs = ['css', 'js', 'sql', 'images'];
+  const watchDirs = ['css', 'js', 'sql', 'images', 'videos'];
   for (const dir of watchDirs) {
     const full = path.join(SRC, dir);
     if (fs.existsSync(full)) {
@@ -284,6 +279,7 @@ function watch() {
   fs.watch(path.join(SRC, 'index.html'), rebuild);
   fs.watch(path.join(SRC, 'imovel.html'), rebuild);
   fs.watch(path.join(SRC, 'admin.html'), rebuild);
+  fs.watch(path.join(SRC, 'build.js'), rebuild);
 
   build();
 }
@@ -293,5 +289,5 @@ function watch() {
 if (WATCH) {
   watch();
 } else {
-  build();
+  build().catch(e => { err(e.message); process.exit(1); });
 }
