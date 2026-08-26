@@ -13,3 +13,7 @@ ehthumbs.db
 # Logs e temporários
 *.log
 *.tmp
+
+# Build
+node_modules/
+dist/

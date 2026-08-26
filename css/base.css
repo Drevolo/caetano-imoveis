@@ -1,0 +1,57 @@
+/* ============================================================
+   Caetano Imóveis - CSS Base
+   Variáveis, reset, tipografia, container
+   ============================================================ */
+
+:root {
+  --gold: #b28e4a;
+  --gold-hover: rgba(178, 142, 74, 0.9);
+  --blue-dark: #004274;
+  --green-dark: #0e2320;
+  --text: #222222;
+  --bg: #f6f2e9;
+  --border: #dce0e0;
+  --placeholder: #a1a7a8;
+  --white: #ffffff;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --radius: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 25px;
+  color: var(--text);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: var(--gold); transition: color .2s; }
+a:hover { color: var(--blue-dark); }
+ul { list-style: none; }
+
+button { touch-action: manipulation; }
+html { -webkit-tap-highlight-color: transparent; }
+img, iframe, video { max-width: 100%; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lora', serif;
+  font-weight: 400;
+  text-transform: capitalize;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.container {
+  width: 100%;
+  max-width: 1310px;
+  margin: 0 auto;
+  padding: 0 20px;
+}

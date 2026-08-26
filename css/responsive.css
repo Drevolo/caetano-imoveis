@@ -1,0 +1,219 @@
+/* ============================================================
+   Caetano Imóveis - CSS Responsive
+   Todos os breakpoints de media query consolidados aqui
+   ============================================================ */
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.property-card { animation: cardIn .4s ease both; }
+.property-card:nth-child(2) { animation-delay: .05s; }
+.property-card:nth-child(3) { animation-delay: .1s; }
+.property-card:nth-child(4) { animation-delay: .15s; }
+.property-card:nth-child(5) { animation-delay: .2s; }
+.property-card:nth-child(6) { animation-delay: .25s; }
+
+.reveal { opacity: 0; transform: translateY(30px); transition: all .7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ===== 1100px ===== */
+@media (max-width: 1100px) {
+  .listings-grid { grid-template-columns: repeat(2, 1fr); }
+  .search-form { grid-template-columns: 1fr 1fr; }
+  .search-form .btn { grid-column: span 1; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .hide-md { display: none; }
+}
+
+/* ===== 1000px ===== */
+@media (max-width: 1000px) {
+  .pd-grid { grid-template-columns: 1fr; }
+  .pd-side { position: static; grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .pd-side .btn-full { grid-column: span 2; }
+  .pd-related .listings-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== 900px ===== */
+@media (max-width: 900px) {
+  .nav-inner .main-nav { display: none; }
+  .mobile-menu.open .main-nav { display: flex; }
+  .nav-toggle { display: block; }
+  .mobile-menu.open { display: block; }
+  .nav-inner { justify-content: flex-end; }
+  .about-grid, .contact-grid, .financie-grid { grid-template-columns: 1fr; }
+  .about-media { margin-bottom: 30px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .header-contact-item.hide-sm { display: none; }
+  .header-social { display: none; }
+  .about-card { left: 0; bottom: 0; }
+}
+
+/* ===== 700px ===== */
+@media (max-width: 700px) {
+  .container { padding: 0 16px; }
+
+  /* header */
+  .header-top-inner { gap: 12px; padding-top: 3px; padding-bottom: 3px; }
+  .logo img { height: 38px; }
+  .nav-inner { min-height: 50px; }
+  .nav-toggle, .nav-fav { min-width: 44px; min-height: 44px; }
+  .nav-fav { font-size: 20px; }
+  .header-contacts { gap: 12px; }
+
+  /* hero */
+  .hero { padding: 52px 0 44px; }
+  .hero h1 { font-size: 30px; margin-bottom: 12px; }
+  .hero p { font-size: 15px; margin-bottom: 28px; }
+
+  /* busca */
+  .search-form { grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+  .search-field { grid-column: 1 / -1; }
+  .search-form .btn { grid-column: span 1; padding: 14px 10px; }
+  .search-form input, .search-form select { min-height: 46px; font-size: 15px; }
+  .search-tabs { width: 100%; }
+  .search-tab { flex: 1; text-align: center; padding: 13px 10px; }
+
+  /* listagens */
+  .listings { padding: 40px 0 48px; }
+  .section-head { flex-direction: column; align-items: center; text-align: center; }
+  .section-head h2 { font-size: 24px; }
+  .listings-grid { grid-template-columns: 1fr; gap: 18px; }
+  .property-thumb > img { height: 200px; }
+  .prop-carousel { height: 200px; }
+  .listing-tools { width: 100%; justify-content: space-between; }
+  .sort-by { flex: 1; min-width: 0; }
+  .sort-by select { width: 100%; }
+  .listings-meta { justify-content: center; text-align: center; }
+  .view-list .property-card { grid-template-columns: 1fr; }
+  .view-list .property-thumb > img { height: 220px; }
+  .view-list .prop-carousel { height: 220px; }
+
+  /* stats */
+  .stats { padding: 40px 0; }
+  .stats-grid { gap: 20px 12px; }
+  .stat-num { font-size: 30px; }
+  .stat-box i { font-size: 28px; }
+  .stat-label { font-size: 13px; }
+
+  /* about / financie / contato */
+  .about, .financie, .contact { padding: 44px 0; }
+  .about-grid, .financie-grid { gap: 32px; }
+  .about-content h2, .financie-content h2 { font-size: 26px; }
+  .about-card { position: static; max-width: none; margin-top: 16px; }
+  .about-media > img { padding: 28px; }
+  .contact-grid { gap: 28px; }
+  .contact-cards { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .contact-form { padding: 20px 16px; }
+
+  /* footer */
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; padding: 44px 16px 32px; }
+
+  /* modal bottom sheet */
+  .modal-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+  }
+  .modal-hero { margin-top: 0; }
+  .modal-hero img { height: 220px; }
+  .modal-details { padding: 18px 16px 24px; }
+  .modal-details .m-price { font-size: 24px; }
+  .modal-details h3 { font-size: 20px; }
+  .m-amenities { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .modal-actions .btn { flex: 1 1 100%; }
+  .fav-list { padding: 16px 16px 22px; }
+  .fav-list h3 { padding-top: 46px; }
+
+  /* whatsapp */
+  .whatsapp-float { width: 54px; height: 54px; font-size: 27px; bottom: 18px; right: 18px; }
+
+  /* skeleton */
+  .skeleton-thumb { height: 200px; }
+  .skeleton-detail-hero { height: 260px; }
+  .skeleton-detail-amenities { grid-template-columns: repeat(2, 1fr); }
+
+  /* lightbox */
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+  .lightbox-prev, .lightbox-next { width: 40px; height: 40px; font-size: 15px; }
+  .lightbox-close { top: 10px; right: 10px; width: 38px; height: 38px; }
+
+  /* página do imóvel */
+  .pd-page { padding-bottom: 44px; }
+  .breadcrumb { padding: 18px 16px 14px; }
+  .pd-hero { margin-bottom: 24px; }
+  .pd-hero .pd-gallery-img, .pd-hero .pd-gallery-video { height: 260px; }
+  .pd-hero .pd-gallery-video.pd-video-vertical { height: 340px; max-width: 70%; }
+  .pd-gallery-prev, .pd-gallery-next { width: 36px; height: 36px; font-size: 13px; }
+  .pd-gallery-thumb { width: 84px; height: 56px; }
+  .pd-head h1 { font-size: 23px; }
+  .pd-price { font-size: 28px; }
+  .pd-amenities { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px 0; }
+  .pd-side { grid-template-columns: 1fr; }
+  .pd-side .btn-full { grid-column: auto; }
+  .pd-box { padding: 20px 16px; }
+  .pd-box h2 { font-size: 20px; }
+  .pd-map iframe { height: 260px; }
+  .pd-facts li { flex-direction: column; gap: 4px; }
+  .pd-facts li span { min-width: 0; }
+  .pd-related { padding: 44px 0; }
+  .pd-related .listings-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== 520px ===== */
+@media (max-width: 520px) {
+  .header-top-inner { gap: 12px; }
+  .header-contacts { gap: 12px; }
+  .header-contact-item { gap: 8px; }
+  .header-contact-item i { width: 34px; height: 34px; font-size: 17px; }
+  .header-contact-lines a { font-size: 13px; }
+  .header-contact-lines .hcl-label { display: none; }
+  .search-tab { font-size: 13px; padding: 12px 8px; }
+  .hero h1 { font-size: 26px; }
+  .hero p { font-size: 14px; }
+  .section-head h2 { font-size: 22px; }
+  .price-inputs input { min-height: 46px; }
+  .property-price { font-size: 19px; }
+  .stat-num { font-size: 26px; }
+  .whatsapp-float { width: 52px; height: 52px; font-size: 26px; bottom: 16px; right: 16px; }
+  .footer-grid { padding: 40px 16px 30px; }
+
+  /* página do imóvel */
+  .breadcrumb { padding: 14px 16px 12px; font-size: 12px; }
+  .pd-hero .pd-gallery-img, .pd-hero .pd-gallery-video { height: 220px; }
+  .pd-hero .pd-gallery-video.pd-video-vertical { height: 300px; max-width: 75%; }
+  .pd-amenities { gap: 8px; }
+  .pd-contact, .pd-card { padding: 20px 16px; }
+}
+
+/* ===== PREFERS-REDUCED-MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
